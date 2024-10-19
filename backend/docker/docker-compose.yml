@@ -1,0 +1,45 @@
+version: '3.8'
+
+
+services:
+  env-file:
+    - ../.env
+  neo4j:
+    image: neo4j:latest
+    container_name: ${NEOJ4_USERNAME}
+    environment:
+      NEO4J_AUTH: ${NEOJ4_USERNAME}/${NEOJ4_PASSWORD}   # Replace with your desired password
+      NEO4J_server_memory_heap_initial__size: 1.75G
+      NEO4J_server_memory_heap_max__size: 1.75G
+      NEO4J_server_memory_pagecache_size: 1.75G
+    ports:
+      - "${NEOJ4_PORT_HTTP}:${NEOJ4_PORT_HTTP}"  # HTTP port
+      - "${NEOJ4_PORT_BOLT}:${NEOJ4_PORT_BOLT}"  # Bolt port
+    volumes:
+      - neo4j_data:/data
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}  
+      POSTGRES_DB: ${POSTGRES_DB} 
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"  # PostgreSQL default port
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Persist PostgreSQL data
+    command: ["postgres", "-c", "shared_preload_libraries=vector"]  # Enable pgvector
+
+  pgvector_extension:
+    image: ankane/pgvector:latest  # pgvector extension container for PostgreSQL
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}  
+      POSTGRES_DB: ${POSTGRES_DB} 
+    depends_on:
+      - postgres
+
+volumes:
+  neo4j_data:
+  postgres_data:
+   

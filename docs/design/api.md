@@ -3,9 +3,9 @@
 
 In this project I plan to use different apis to interact with my app
 
-- Calender 
-- Goals 
-- Todo 
+- Calender -> ics 
+- Todo -> todoist 
+- prioritisation matrix -> prioritisation -> skills
 - Habit tracking (This is done though many way, apps, obsidian, notion)
 - Note taking application (Obisidian)
 
@@ -25,3 +25,11 @@ However the algorithms I may develop, if done  in a functional manner I know tha
 Intinally while develloping I will just be using sqlite as I dont need a database service intinally and just focus and being able to redproduce everyhting locally. 
 
 I need to learn about more about neoks I have never used grpah database before the main reason I have considered this is due to the graph nature of connecting each notes and how you consider relationships and not trying force a way of thinking while developing my application.
+
+# References
+
+- https://developer.todoist.com/guides/#developing-with-todoist
+- https://developers.google.com/calendar/api/guides/overview
+- https://docs.obsidian.md/Home
+- https://github.com/coddingtonbear/obsidian-local-rest-api
+
