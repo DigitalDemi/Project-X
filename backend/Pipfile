@@ -6,10 +6,10 @@ name = "pypi"
 [packages]
 transformers = "*"
 flask = "*"
-install = "*"
 torch = "*"
 torchvision = "*"
 torchaudio = "*"
+anki = "*"
 
 [dev-packages]
 
