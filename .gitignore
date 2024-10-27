@@ -1,2 +1,6 @@
 .env
 vendor/
+backend/calendar/ics_files
+
+
+events.db
