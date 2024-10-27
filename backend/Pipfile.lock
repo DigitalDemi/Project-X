@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f2b4f35f7130cd7e3fd1e32e6f20d045784c72018987e547dc0356d1d57aaccd"
+            "sha256": "17f600d30e21d93652054685e5b85db51148456c811544c7c40de5da52ef15f1"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -27,6 +27,22 @@
             "index": "pypi",
             "markers": "python_version >= '3.9'",
             "version": "==24.6.3"
+        },
+        "arrow": {
+            "hashes": [
+                "sha256:c728b120ebc00eb84e01882a6f5e7927a53960aa990ce7dd2b10f39005a67f80",
+                "sha256:d4540617648cb5f895730f1ad8c82a65f2dad0166f57b75f3ca54759c4d67a85"
+            ],
+            "markers": "python_version >= '3.8'",
+            "version": "==1.3.0"
+        },
+        "attrs": {
+            "hashes": [
+                "sha256:5cfb1b9148b5b086569baec03f20d7b6bf3bcacc9a42bebf87ffaaca362f6346",
+                "sha256:81921eb96de3191c8258c199618104dd27ac608d9366f5e35d011eae1867ede2"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==24.2.0"
         },
         "beautifulsoup4": {
             "hashes": [
@@ -352,6 +368,14 @@
             ],
             "markers": "python_full_version >= '3.8.0'",
             "version": "==0.26.1"
+        },
+        "ics": {
+            "hashes": [
+                "sha256:5fcf4d29ec6e7dfcb84120abd617bbba632eb77b097722b7df70e48dbcf26103",
+                "sha256:6743539bca10391635249b87d74fcd1094af20b82098bebf7c7521df91209f05"
+            ],
+            "index": "pypi",
+            "version": "==0.7.2"
         },
         "idna": {
             "hashes": [
@@ -1299,6 +1323,14 @@
             "markers": "python_version >= '3.9'",
             "version": "==1.13.1"
         },
+        "tatsu": {
+            "hashes": [
+                "sha256:57a6da442f71f07cac4fc99c5f997e2559e340b9e5177449dc35b751e18e3405",
+                "sha256:97073bcf496a54adc6c87043cfd70c177a5f5f95c09c3ba0cfea43286ea728e1"
+            ],
+            "markers": "python_version >= '3.11'",
+            "version": "==5.12.1"
+        },
         "threadpoolctl": {
             "hashes": [
                 "sha256:082433502dd922bf738de0d8bcc4fdcbf0979ff44c42bd40f5af8a282f6fa107",
@@ -1517,6 +1549,14 @@
             ],
             "markers": "platform_system == 'Linux' and platform_machine == 'x86_64' and python_version < '3.13'",
             "version": "==3.1.0"
+        },
+        "types-python-dateutil": {
+            "hashes": [
+                "sha256:250e1d8e80e7bbc3a6c99b907762711d1a1cdd00e978ad39cb5940f6f0a87f3d",
+                "sha256:58cb85449b2a56d6684e41aeefb4c4280631246a0da1a719bdbe6f3fb0317446"
+            ],
+            "markers": "python_version >= '3.8'",
+            "version": "==2.9.0.20241003"
         },
         "typing-extensions": {
             "hashes": [
