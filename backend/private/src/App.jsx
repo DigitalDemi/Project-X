@@ -25,7 +25,7 @@ function App() {
     const fetchSubjects = async () => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:5000/api/subjects');
+            const response = await fetch('/api/subjects');
             if (!response.ok) throw new Error('Failed to fetch subjects');
             const data = await response.json();
             setSubjects(data);
@@ -39,7 +39,7 @@ function App() {
 
     const fetchRecommendations = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/recommendations');
+            const response = await fetch('/api/recommendations');
             if (!response.ok) throw new Error('Failed to fetch recommendations');
             const data = await response.json();
             setRecommendations(data);
@@ -51,7 +51,7 @@ function App() {
     const addSubject = async () => {
         if (!newSubject) return;
         try {
-            const response = await fetch('http://localhost:5000/api/subjects', {
+            const response = await fetch('/api/subjects', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name: newSubject }),
@@ -72,7 +72,7 @@ function App() {
     const addSubskill = async () => {
         if (!selectedSubject || !newSubskill) return;
         try {
-            const response = await fetch('http://localhost:5000/api/subskills', {
+            const response = await fetch('/api/subskills', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -92,7 +92,7 @@ function App() {
     const addTopic = async () => {
         if (!selectedSubject || !selectedSubskill || !newTopic) return;
         try {
-            const response = await fetch('http://localhost:5000/api/topics', {
+            const response = await fetch('/api/topics', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -121,7 +121,7 @@ function App() {
 
       console.log('Updating performance for topic:', { topicId, newPerformance });
       
-      const response = await fetch('http://localhost:5000/api/schedule', {
+      const response = await fetch('/api/schedule', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -283,7 +283,7 @@ function App() {
 
     const retrainModel = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/retrain', {
+            const response = await fetch('/api/retrain', {
                 method: 'POST',
             });
             if (!response.ok) throw new Error('Failed to retrain model');
