@@ -10,6 +10,11 @@ torch = "*"
 torchvision = "*"
 torchaudio = "*"
 anki = "*"
+requests = "*"
+scikit-learn = "*"
+matplotlib = "*"
+ics = "*"
+
 
 [dev-packages]
 
