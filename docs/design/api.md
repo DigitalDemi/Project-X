@@ -41,8 +41,6 @@ the app.
 - https://github.com/ankitects/anki/tree/main/docs/syncserver
 - https://ankiweb.net/about
 
-
-
 # Calender System
 The calender system, I was intionally going to use the google calender api to change the persons schdule however I think it makes more sense to have no dependency and use an ics server that will generate an ics file and then the person can subcribe to it.
 

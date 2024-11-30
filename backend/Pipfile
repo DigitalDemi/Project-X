@@ -15,8 +15,6 @@ scikit-learn = "*"
 matplotlib = "*"
 ics = "*"
 
-
-
 [dev-packages]
 
 [requires]
