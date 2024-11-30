@@ -13,6 +13,9 @@ anki = "*"
 requests = "*"
 scikit-learn = "*"
 matplotlib = "*"
+ics = "*"
+
+
 
 [dev-packages]
 

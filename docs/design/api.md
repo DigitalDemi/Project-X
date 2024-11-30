@@ -33,9 +33,19 @@ I need to learn about more about neoks I have never used grpah database before t
 - https://docs.obsidian.md/Home
 - https://github.com/coddingtonbear/obsidian-local-rest-api
 
+
 # Anki
 Anki web was designed so that you use the computer version of anki to sync with other deivces, therefore a simliur approch will be taken with
 the app.
 
 - https://github.com/ankitects/anki/tree/main/docs/syncserver
 - https://ankiweb.net/about
+
+
+
+# Calender System
+The calender system, I was intionally going to use the google calender api to change the persons schdule however I think it makes more sense to have no dependency and use an ics server that will generate an ics file and then the person can subcribe to it.
+
+- https://en.wikipedia.org/wiki/ICalendar
+
+
