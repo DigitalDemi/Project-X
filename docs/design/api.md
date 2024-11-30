@@ -33,6 +33,7 @@ I need to learn about more about neoks I have never used grpah database before t
 - https://docs.obsidian.md/Home
 - https://github.com/coddingtonbear/obsidian-local-rest-api
 
+
 # Anki
 Anki web was designed so that you use the computer version of anki to sync with other deivces, therefore a simliur approch will be taken with
 the app.
