@@ -2,8 +2,10 @@ import os
 import requests
 from flask import Flask, jsonify
 from anki.collection import Collection
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 ANKI_COLLECTION_PATH = os.path.expanduser("/home/demi/.local/share/Anki2/User 1/collection.anki2")
 
@@ -33,12 +35,12 @@ def aggregate_card_stats(cards):
         total_interval += card['interval']
 
     return {
-        "lapses": total_lapses,  # Sum lapses
-        "ease": total_ease / num_cards,  # Average ease
-        "interval": total_interval / num_cards  # Average interval
+        "lapses": total_lapses,
+        "ease": total_ease / num_cards,
+        "interval": total_interval / num_cards
     }
 
-@app.route('/anki_data', methods=['GET'])
+@app.route('/anki/data', methods=['GET'])
 def get_anki_data():
     col = load_collection()
     anki_data = []
@@ -46,10 +48,9 @@ def get_anki_data():
     for cid in col.find_cards("is:due"):
         card = col.get_card(cid)
         lapses = card.lapses
-        ease = card.factor / 1000.0  # Normalized ease (factor is in thousands)
-        interval = card.ivl  # Interval is already in days
+        ease = card.factor / 1000.0
+        interval = card.ivl
 
-        # We can estimate halflife as interval * (0.8 to 1.2) as an initial assumption
         halflife = interval * (0.8 + (lapses * 0.1))
 
         anki_data.append({
@@ -61,62 +62,52 @@ def get_anki_data():
     col.close()
     return jsonify(anki_data)
 
-
-# Flask route to get weak cards and calculate their next review
-@app.route('/anki_weak_cards', methods=['GET'])
+@app.route('/anki/weak_cards', methods=['GET'])
 def get_weak_cards_with_review():
     col = load_collection()
     weak_cards = []
+    seen_decks.clear()  # Reset seen decks
 
-    for cid in col.find_cards("is:due"):
-        card = col.get_card(cid)
-        lapses = card.lapses
-        ease = card.factor
-        interval = card.ivl
+    try:
+        for cid in col.find_cards("is:due"):
+            card = col.get_card(cid)
+            deck_id = card.did
+            deck_name = clean_deck_name(col.decks.name(deck_id))
 
-        # Clean the deck name by removing "Everything::"
-        deck_id = card.did
-        deck_name = clean_deck_name(col.decks.name(deck_id))
+            if deck_name in seen_decks:
+                continue
+            seen_decks.add(deck_name)
 
-        # Skip if we've already processed this deck
-        if deck_name in seen_decks:
-            continue
-        seen_decks.add(deck_name)
+            deck_cards = [col.get_card(card_id) for card_id in col.find_cards(f"deck:{deck_name}")]
+            aggregated_stats = aggregate_card_stats(deck_cards)
 
-        # Get all cards in the same deck
-        deck_cards = [col.get_card(card_id) for card_id in col.find_cards(f"deck:{deck_name}")]
-        aggregated_stats = aggregate_card_stats(deck_cards)
+            ssp_response = requests.post(
+                "api/calculate_review",
+                json={
+                    "ease": aggregated_stats['ease'],
+                    "interval": aggregated_stats['interval'],
+                    "lapses": aggregated_stats['lapses']
+                }
+            )
+            ssp_data = ssp_response.json()
 
-        # Send the aggregated stats to the SSP-MMC-Plus service for next review calculation
-        ssp_response = requests.post(
-            "http://localhost:5001/calculate_review",
-            json={
-                "ease": aggregated_stats['ease'],
-                "interval": aggregated_stats['interval'],
-                "lapses": aggregated_stats['lapses']
-            }
-        )
-        ssp_data = ssp_response.json()
-        next_review = ssp_data['next_review_interval']
-        halflife = ssp_data['halflife']
+            note = card.note()
+            weak_cards.append({
+                "card_id": cid,
+                "lapses": card.lapses,
+                "ease": card.factor,
+                "interval": card.ivl,
+                "question": note.fields[0],
+                "answer": note.fields[1],
+                "deck_name": deck_name,
+                "next_review": ssp_data['next_review_interval'],
+                "halflife": ssp_data['halflife']
+            })
 
-        # Append weak cards data with review time and halflife
-        note = card.note()
-        weak_cards.append({
-            "card_id": cid,
-            "lapses": lapses,
-            "ease": ease,
-            "interval": interval,
-            "question": note.fields[0],
-            "answer": note.fields[1],
-            "deck_name": deck_name,
-            "next_review": next_review,
-            "halflife": halflife
-        })
+    finally:
+        col.close()
 
-    col.close()
     return jsonify(weak_cards)
 
 if __name__ == '__main__':
     app.run(port=5000)
-

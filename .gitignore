@@ -1,5 +1,6 @@
 .env
 vendor/
+__pycache__/
 backend/calendar/ics_files
 backend/Caddyfile
 events.db

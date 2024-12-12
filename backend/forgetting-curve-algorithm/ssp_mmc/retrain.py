@@ -6,7 +6,7 @@ from ssp_mmc.model import GRUModel
 # Function to retrain the model based on user data
 def retrain_model(user_data, model_path='model.pt', epochs=50):
     # Load the existing model
-    model = GRUModel(input_size=2, hidden_size=32)
+    model = GRUModel(input_size=2, hidden_size=54)
     model.load_state_dict(torch.load(model_path))
     model.train()
 
