@@ -14,7 +14,6 @@ class Body extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TopBar()
-               // top bar
                // Date Scroller
                // Show Calender events block
                // Show tasks based on block

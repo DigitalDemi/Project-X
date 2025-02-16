@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/navigation/shared/body.dart';
-
+import 'package:provider/provider.dart';
+import 'package:frontend/services/profile_service.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ProfileService(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

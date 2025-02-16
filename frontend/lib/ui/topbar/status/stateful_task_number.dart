@@ -8,19 +8,33 @@ class StatefulTaskNumber extends StatefulWidget {
 }
 
 class _StatefulTaskNumberState extends State<StatefulTaskNumber> {
-  int completedTasks = 1;
+  int completedTasks = 0;
   int totalTasks = 3;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Icon(Icons.check, color: Colors.white, size: 16),
-        ...List.generate(
-          totalTasks - completedTasks,
-          (index) => const Icon(Icons.remove, color: Colors.white, size: 16),
+        Text(
+          '$completedTasks',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+          ),
+        ),
+        const SizedBox(width: 4),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: List.generate(
+            totalTasks,
+            (index) => Icon(
+              index < completedTasks ? Icons.check : Icons.remove,
+              color: Colors.white,
+              size: 16,
+            ),
+          ),
         ),
       ],
     );
