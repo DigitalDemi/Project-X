@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/ui/calender/calendar_view.dart';
 import 'package:frontend/ui/navigation/shared/top_bar.dart';
+import 'package:frontend/ui/tasks/task_card.dart';
 
 class Body extends StatelessWidget {
   const Body({super.key});
@@ -13,7 +15,11 @@ class Body extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TopBar()
+              TopBar(),
+              const SizedBox(height: 24),
+              CalendarView(),
+              const SizedBox(height: 24),
+              TaskCardList()
                // Date Scroller
                // Show Calender events block
                // Show tasks based on block
