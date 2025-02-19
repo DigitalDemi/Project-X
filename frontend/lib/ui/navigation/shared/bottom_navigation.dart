@@ -1,4 +1,4 @@
-// lib/ui/navigation/bottom_navigation.dart
+// lib/ui/navigation/shared/bottom_navigation.dart
 import 'package:flutter/material.dart';
 
 class CustomBottomNavigation extends StatefulWidget {
@@ -42,12 +42,12 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation> {
           BottomNavigationBarItem(
             icon: Icon(Icons.wb_sunny_outlined),
             activeIcon: Icon(Icons.wb_sunny),
-            label: 'Sun',
+            label: 'Day',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.eco_outlined),
-            activeIcon: Icon(Icons.eco),
-            label: 'Eco',
+            icon: Icon(Icons.account_tree_outlined),
+            activeIcon: Icon(Icons.account_tree),
+            label: 'Learning',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.add_road_outlined),

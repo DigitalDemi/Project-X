@@ -1,0 +1,166 @@
+// lib/ui/pages/add_topic_page.dart
+import 'package:flutter/material.dart';
+
+class AddTopicPage extends StatefulWidget {
+  const AddTopicPage({super.key});
+
+  @override
+  State<AddTopicPage> createState() => _AddTopicPageState();
+}
+
+class _AddTopicPageState extends State<AddTopicPage> {
+  final _subjectController = TextEditingController();
+  final _topicController = TextEditingController();
+  String _status = 'Active';
+
+  @override
+  void dispose() {
+    _subjectController.dispose();
+    _topicController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[100],
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.close, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Cancel',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.normal),
+        ),
+        titleSpacing: 0,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionTitle('Subject'),
+            const SizedBox(height: 8),
+            _buildDropdownField(
+              'Select a subject',
+              trailing: _buildTextField('Or enter new subject'),
+            ),
+            const SizedBox(height: 24),
+            
+            _buildSectionTitle('Topic Name'),
+            const SizedBox(height: 8),
+            _buildTextField('Enter topic name', controller: _topicController),
+            const SizedBox(height: 24),
+            
+            _buildSectionTitle('Prerequisites'),
+            const SizedBox(height: 8),
+            _buildDropdownField('Select prerequisites'),
+            const SizedBox(height: 24),
+            
+            _buildSectionTitle('Status'),
+            const SizedBox(height: 8),
+            _buildDropdownField('Active'),
+            const SizedBox(height: 32),
+            
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    // TODO: Implement add topic logic
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  ),
+                  child: const Text('Add Topic'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+      ),
+    );
+  }
+
+  Widget _buildTextField(String hint, {TextEditingController? controller}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: TextStyle(color: Colors.grey[500]),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          border: InputBorder.none,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDropdownField(String hint, {Widget? trailing}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: InkWell(
+              onTap: () {
+                // TODO: Implement dropdown logic
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      hint,
+                      style: TextStyle(color: Colors.grey[500]),
+                    ),
+                    const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          if (trailing != null) ...[
+            Container(
+              width: 1,
+              height: 48,
+              color: Colors.grey[300],
+            ),
+            Expanded(child: trailing),
+          ],
+        ],
+      ),
+    );
+  }
+}

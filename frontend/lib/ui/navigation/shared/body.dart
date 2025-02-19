@@ -5,6 +5,7 @@ import 'package:frontend/ui/navigation/shared/bottom_navigation.dart';
 import 'package:frontend/ui/navigation/shared/top_bar.dart';
 import 'package:frontend/ui/tasks/task_card.dart';
 import 'package:frontend/ui/tasks/task_list.dart';
+import 'package:frontend/ui/pages/learning_dashboard.dart';
 
 class Body extends StatefulWidget {
   const Body({super.key});
@@ -22,11 +23,10 @@ class _BodyState extends State<Body> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
+  Widget _buildCurrentView() {
+    switch (_currentIndex) {
+      case 0:
+        return SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,7 +40,26 @@ class _BodyState extends State<Body> {
               const TaskListSection(),
             ],
           ),
-        ),
+        );
+      case 1:
+        return const LearningDashboard();
+      case 2:
+        return const Center(
+          child: Text(
+            'Road View Coming Soon',
+            style: TextStyle(color: Colors.white),
+          ),
+        );
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: _buildCurrentView(),
       ),
       bottomNavigationBar: CustomBottomNavigation(
         currentIndex: _currentIndex,
