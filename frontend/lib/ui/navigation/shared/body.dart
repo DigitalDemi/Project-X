@@ -1,33 +1,50 @@
+// lib/ui/navigation/shared/body.dart
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/calender/calendar_view.dart';
+import 'package:frontend/ui/navigation/shared/bottom_navigation.dart';
 import 'package:frontend/ui/navigation/shared/top_bar.dart';
 import 'package:frontend/ui/tasks/task_card.dart';
+import 'package:frontend/ui/tasks/task_list.dart';
 
-class Body extends StatelessWidget {
+class Body extends StatefulWidget {
   const Body({super.key});
+
+  @override
+  State<Body> createState() => _BodyState();
+}
+
+class _BodyState extends State<Body> {
+  int _currentIndex = 0;
+
+  void _onTabSelected(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TopBar(),
+              const TopBar(),
               const SizedBox(height: 24),
-              CalendarView(),
+              const CalendarView(),
               const SizedBox(height: 24),
-              TaskCardList()
-               // Date Scroller
-               // Show Calender events block
-               // Show tasks based on block
-               // Tasks list
-               // Next time block
+              const TaskCardList(),
+              const SizedBox(height: 24),
+              const TaskListSection(),
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: CustomBottomNavigation(
+        currentIndex: _currentIndex,
+        onTabSelected: _onTabSelected,
       ),
     );
   }
