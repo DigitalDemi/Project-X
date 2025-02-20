@@ -50,9 +50,9 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation> {
             label: 'Learning',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_road_outlined),
-            activeIcon: Icon(Icons.add_road),
-            label: 'Road',
+            icon: Icon(Icons.grid_view_outlined),
+            activeIcon: Icon(Icons.grid_view),
+            label: 'Modules',
           ),
         ],
       ),

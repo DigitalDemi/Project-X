@@ -6,6 +6,7 @@ import 'package:frontend/ui/navigation/shared/top_bar.dart';
 import 'package:frontend/ui/tasks/task_card.dart';
 import 'package:frontend/ui/tasks/task_list.dart';
 import 'package:frontend/ui/pages/learning_dashboard.dart';
+import 'package:frontend/ui/pages/modules_view.dart';
 
 class Body extends StatefulWidget {
   const Body({super.key});
@@ -44,12 +45,7 @@ class _BodyState extends State<Body> {
       case 1:
         return const LearningDashboard();
       case 2:
-        return const Center(
-          child: Text(
-            'Road View Coming Soon',
-            style: TextStyle(color: Colors.white),
-          ),
-        );
+        return const ModulesView();
       default:
         return const SizedBox.shrink();
     }
