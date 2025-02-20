@@ -23,19 +23,18 @@ class _AddTopicPageState extends State<AddTopicPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.grey[900],
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.black),
+          icon: const Icon(Icons.close, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'Cancel',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.normal),
+          'Add New Topic',
+          style: TextStyle(color: Colors.white),
         ),
-        titleSpacing: 0,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -70,7 +69,10 @@ class _AddTopicPageState extends State<AddTopicPage> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.grey[400]),
+                  ),
                 ),
                 const SizedBox(width: 16),
                 ElevatedButton(
@@ -79,9 +81,12 @@ class _AddTopicPageState extends State<AddTopicPage> {
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
+                    backgroundColor: Colors.deepPurpleAccent,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   child: const Text('Add Topic'),
                 ),
@@ -99,6 +104,7 @@ class _AddTopicPageState extends State<AddTopicPage> {
       style: const TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w500,
+        color: Colors.white,
       ),
     );
   }
@@ -106,15 +112,16 @@ class _AddTopicPageState extends State<AddTopicPage> {
   Widget _buildTextField(String hint, {TextEditingController? controller}) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.grey[900],
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey[300]!),
+        border: Border.all(color: Colors.grey[800]!),
       ),
       child: TextField(
         controller: controller,
+        style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.grey[500]),
+          hintStyle: TextStyle(color: Colors.grey[600]),
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           border: InputBorder.none,
         ),
@@ -125,9 +132,9 @@ class _AddTopicPageState extends State<AddTopicPage> {
   Widget _buildDropdownField(String hint, {Widget? trailing}) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.grey[900],
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey[300]!),
+        border: Border.all(color: Colors.grey[800]!),
       ),
       child: Row(
         children: [
@@ -143,9 +150,9 @@ class _AddTopicPageState extends State<AddTopicPage> {
                   children: [
                     Text(
                       hint,
-                      style: TextStyle(color: Colors.grey[500]),
+                      style: TextStyle(color: Colors.grey[600]),
                     ),
-                    const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+                    Icon(Icons.keyboard_arrow_down, color: Colors.grey[600]),
                   ],
                 ),
               ),
@@ -155,7 +162,7 @@ class _AddTopicPageState extends State<AddTopicPage> {
             Container(
               width: 1,
               height: 48,
-              color: Colors.grey[300],
+              color: Colors.grey[800],
             ),
             Expanded(child: trailing),
           ],
