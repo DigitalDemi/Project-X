@@ -257,3 +257,70 @@ class Neo4jConnection:
             except Exception as e:
                 print(f"Database error in get_full_graph: {str(e)}")
                 raise Exception(f"Failed to retrieve graph: {str(e)}")
+        def create_task(self, task_data: dict):
+            with self.driver.session() as session:
+                result = session.run("""
+                    CREATE (t:Task {
+                        id: $id,
+                        title: $title,
+                        is_completed: $is_completed,
+                        created_at: $created_at,
+                        due_date: $due_date,
+                        energy_level: $energy_level,
+                        duration: $duration
+                    })
+                    RETURN t
+                    """,
+                    id=task_data['id'],
+                    title=task_data['title'],
+                    is_completed=task_data.get('is_completed', False),
+                    created_at=task_data['created_at'].isoformat(),
+                    due_date=task_data.get('due_date', None),
+                    energy_level=task_data.get('energy_level', None),
+                    duration=task_data.get('duration', None)
+                )
+                return result.single()
+
+        def create_calendar_event(self, event_data: dict):
+            with self.driver.session() as session:
+                result = session.run("""
+                    CREATE (e:Event {
+                        id: $id,
+                        title: $title,
+                        start_time: $start_time,
+                        end_time: $end_time,
+                        type: $type,
+                        description: $description
+                    })
+                    RETURN e
+                    """,
+                    id=event_data['id'],
+                    title=event_data['title'],
+                    start_time=event_data['start_time'].isoformat(),
+                    end_time=event_data['end_time'].isoformat(),
+                    type=event_data['type'],
+                    description=event_data.get('description', None)
+                )
+                return result.single()
+
+        def get_tasks(self):
+            with self.driver.session() as session:
+                result = session.run("""
+                    MATCH (t:Task)
+                    RETURN t
+                    ORDER BY t.created_at DESC
+                    """)
+                return [dict(record["t"]) for record in result]
+
+        def get_calendar_events(self, start_date: datetime, end_date: datetime):
+            with self.driver.session() as session:
+                result = session.run("""
+                    MATCH (e:Event)
+                    WHERE datetime($start) <= datetime(e.start_time) <= datetime($end)
+                    RETURN e
+                    ORDER BY e.start_time
+                    """,
+                    start=start_date.isoformat(),
+                    end=end_date.isoformat()
+                )
+                return [dict(record["e"]) for record in result]
