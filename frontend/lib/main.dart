@@ -1,12 +1,46 @@
+// lib/main.dart
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/navigation/shared/body.dart';
+import 'package:frontend/services/calender_service.dart';
 import 'package:provider/provider.dart';
-import 'package:frontend/services/profile_service.dart';
+import 'services/local_database.dart';
+import 'services/api_service.dart';
+import 'services/sync_service.dart';
+import 'services/task_service.dart';
+import 'services/topic_service.dart';
+import 'services/profile_service.dart';
+import 'ui/navigation/shared/body.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize services
+  final localDb = LocalDatabase();
+  final apiService = ApiService();
+  final syncService = SyncService(
+    localDb, 
+    apiService,
+    SyncConfig(
+      syncInterval: const Duration(minutes: 15),
+      syncTasks: true,
+      syncCalendar: true,
+      syncTopics: true,
+    ),
+  );
+  
+  // Initialize feature services
+  final taskService = TaskService(syncService);
+  final topicService = TopicService(syncService);
+  final calendarService = CalendarService(syncService);
+  final profileService = ProfileService();
+
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ProfileService(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => profileService),
+        ChangeNotifierProvider(create: (_) => taskService),
+        ChangeNotifierProvider(create: (_) => topicService),
+        ChangeNotifierProvider(create: (_) => calendarService),
+      ],
       child: const MyApp(),
     ),
   );
@@ -18,18 +52,18 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Dark Mode UI',
+      title: 'Learning App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: Colors.black,
         primaryColor: Colors.deepPurpleAccent,
-        cardColor: Colors.grey[900], // Dark gray for cards
+        cardColor: Colors.grey[900],
         textTheme: const TextTheme(
           bodyLarge: TextStyle(color: Colors.black),
           bodyMedium: TextStyle(color: Colors.white70),
         ),
       ),
-      home: Body (),
+      home: const Body(),
     );
   }
 }

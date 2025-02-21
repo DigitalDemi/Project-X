@@ -75,7 +75,7 @@ class TaskCardList extends StatelessWidget {
   final List<Map<String, String>> tasks;
 
   const TaskCardList({
-    Key? key,
+    super.key,
     this.tasks = const [
       {
         'title': 'CREATING CV',
@@ -93,7 +93,7 @@ class TaskCardList extends StatelessWidget {
         'energyLevel': 'LOW ENERGY'
       },
     ],
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
