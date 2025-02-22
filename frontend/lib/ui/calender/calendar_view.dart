@@ -1,5 +1,10 @@
-// NOTE: THIS WILL BE BROKEN DOWN MORE LATER
+// lib/ui/calendar/calendar_view.dart
 import 'package:flutter/material.dart';
+import 'package:frontend/services/calender_service.dart';
+import 'package:provider/provider.dart';
+import '../../models/calendar_event.dart';
+import 'event_tile.dart';
+import 'add_event_dialog.dart';
 
 class CalendarView extends StatefulWidget {
   const CalendarView({super.key});
@@ -10,24 +15,6 @@ class CalendarView extends StatefulWidget {
 
 class _CalendarViewState extends State<CalendarView> {
   DateTime selectedDate = DateTime.now();
-  
-  // This will be changed later to pull information from data or ICS service
-  final Map<String, List<Meeting>> eventsByDate = {
-    '2025-02-16': [
-      Meeting(
-        startTime: '8:00',
-        endTime: '9:00',
-        title: 'Team Meeting',
-      ),
-    ],
-    '2025-02-17': [
-      Meeting(
-        startTime: '10:00',
-        endTime: '11:00',
-        title: 'Client Call',
-      ),
-    ],
-  };
 
   void _onDateSelected(DateTime date) {
     setState(() {
@@ -35,157 +22,105 @@ class _CalendarViewState extends State<CalendarView> {
     });
   }
 
-  List<DateTime> _generateDateList() {
-    final List<DateTime> dates = [];
-    final DateTime now = DateTime.now();
-    
-    // Generate dates for a week before and after
-    for (int i = -3; i <= 3; i++) {
-      dates.add(now.add(Duration(days: i)));
-    }
-    return dates;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final dates = _generateDateList();
-    final dateKey = '${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}';
-    final events = eventsByDate[dateKey] ?? [];
-
-    return Column(
-      children: [
-        // Date Scroller
-        SizedBox(
-          height: 60,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: dates.length,
-            itemBuilder: (context, index) {
-              final date = dates[index];
-              final isSelected = date.day == selectedDate.day &&
-                               date.month == selectedDate.month &&
-                               date.year == selectedDate.year;
-              
-              return DateChip(
-                date: date,
-                isSelected: isSelected,
-                onTap: () => _onDateSelected(date),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 20),
-        
-        // Events List
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.grey[850],
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: events.isEmpty
-              ? const Center(
-                  child: Text(
-                    'No meetings scheduled',
-                    style: TextStyle(color: Colors.white70),
-                  ),
-                )
-              : Column(
-                  children: events
-                      .map((event) => MeetingTile(meeting: event))
-                      .toList(),
-                ),
-        ),
-      ],
-    );
-  }
-}
-
-class DateChip extends StatelessWidget {
-  final DateTime date;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const DateChip({
-    super.key,
-    required this.date,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.deepPurpleAccent : Colors.grey[850],
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              _getDayName(date),
-              style: TextStyle(
-                color: isSelected ? Colors.white : Colors.white70,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            Text(
-              date.day.toString(),
-              style: TextStyle(
-                color: isSelected ? Colors.white : Colors.white70,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
+  void _showAddEventDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AddEventDialog(selectedDate: selectedDate),
     );
   }
 
-  String _getDayName(DateTime date) {
-    switch (date.weekday) {
-      case 1: return 'Mon';
-      case 2: return 'Tue';
-      case 3: return 'Wed';
-      case 4: return 'Thu';
-      case 5: return 'Fri';
-      case 6: return 'Sat';
-      case 7: return 'Sun';
-      default: return '';
-    }
-  }
-}
-
-// Meeting tile widget
-class MeetingTile extends StatelessWidget {
-  final Meeting meeting;
-
-  const MeetingTile({
-    super.key,
-    required this.meeting,
-  });
-
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
+    return SizedBox(
+      height: 500, // Fixed height for the entire calendar view
+      child: Column(
         children: [
-          Text(
-            '${meeting.startTime} - ${meeting.endTime}',
-            style: const TextStyle(color: Colors.white70),
+          // Date selector - fixed height
+          Container(
+            height: 80,
+            color: Colors.grey[900],
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: 7,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemBuilder: (context, index) {
+                final date = DateTime.now().add(Duration(days: index - 3));
+                final isSelected = date.year == selectedDate.year &&
+                                 date.month == selectedDate.month &&
+                                 date.day == selectedDate.day;
+
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: _DateChip(
+                    date: date,
+                    isSelected: isSelected,
+                    onTap: () => _onDateSelected(date),
+                  ),
+                );
+              },
+            ),
           ),
-          const SizedBox(width: 16),
-          Text(
-            meeting.title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
+
+          // Events list - takes remaining height
+          Expanded(
+            child: Container(
+              color: Colors.black,
+              child: Stack(
+                children: [
+                  Consumer<CalendarService>(
+                    builder: (context, service, child) {
+                      final events = service.getEventsForDate(selectedDate);
+
+                      if (events.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.event_available,
+                                size: 48,
+                                color: Colors.grey[700],
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No events scheduled',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      return ListView.separated(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: events.length,
+                        separatorBuilder: (context, index) => const SizedBox(height: 8),
+                        itemBuilder: (context, index) {
+                          final event = events[index];
+                          return EventTile(
+                            event: event,
+                            onDelete: event.source == EventSource.userCreated
+                                ? () => service.deleteEvent(event.id)
+                                : null,
+                          );
+                        },
+                      );
+                    },
+                  ),
+                  Positioned(
+                    bottom: 16,
+                    right: 16,
+                    child: FloatingActionButton(
+                      onPressed: _showAddEventDialog,
+                      backgroundColor: Colors.deepPurpleAccent,
+                      child: const Icon(Icons.add),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -194,15 +129,67 @@ class MeetingTile extends StatelessWidget {
   }
 }
 
-// Meeting model
-class Meeting {
-  final String startTime;
-  final String endTime;
-  final String title;
+class _DateChip extends StatelessWidget {
+  final DateTime date;
+  final bool isSelected;
+  final VoidCallback onTap;
 
-  Meeting({
-    required this.startTime,
-    required this.endTime,
-    required this.title,
+  const _DateChip({
+    required this.date,
+    required this.isSelected,
+    required this.onTap,
   });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.deepPurpleAccent : Colors.grey[850],
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                _getDayName(date),
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.white70,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                date.day.toString(),
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.white70,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _getDayName(DateTime date) {
+    switch (date.weekday) {
+      case 1: return 'MON';
+      case 2: return 'TUE';
+      case 3: return 'WED';
+      case 4: return 'THU';
+      case 5: return 'FRI';
+      case 6: return 'SAT';
+      case 7: return 'SUN';
+      default: return '';
+    }
+  }
 }

@@ -15,6 +15,7 @@ void main() async {
   
   // Initialize services
   final localDb = LocalDatabase();
+  final database = await localDb.database; 
   final apiService = ApiService();
   final syncService = SyncService(
     localDb, 
@@ -30,7 +31,7 @@ void main() async {
   // Initialize feature services
   final taskService = TaskService(syncService);
   final topicService = TopicService(syncService);
-  final calendarService = CalendarService(syncService);
+  final calendarService = CalendarService(database);  // Pass the Database instance
   final profileService = ProfileService();
 
   runApp(
