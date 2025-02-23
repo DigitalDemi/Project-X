@@ -32,10 +32,10 @@ class _CalendarViewState extends State<CalendarView> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 500, // Fixed height for the entire calendar view
+      height: 400, // Reduced height
       child: Column(
         children: [
-          // Date selector - fixed height
+          // Date selector
           Container(
             height: 80,
             color: Colors.grey[900],
@@ -61,62 +61,101 @@ class _CalendarViewState extends State<CalendarView> {
             ),
           ),
 
-          // Events list - takes remaining height
+          // Events list with add button in header
           Expanded(
             child: Container(
               color: Colors.black,
-              child: Stack(
+              child: Column(
                 children: [
-                  Consumer<CalendarService>(
-                    builder: (context, service, child) {
-                      final events = service.getEventsForDate(selectedDate);
+                  // Header with action button
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Events',
+                          style: TextStyle(
+                            color: Colors.grey[400],
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: _showAddEventDialog,
+                          icon: const Icon(Icons.add_circle_outline),
+                          color: Colors.deepPurpleAccent,
+                          iconSize: 28,
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // Events list
+                  Expanded(
+                    child: Consumer<CalendarService>(
+                      builder: (context, service, child) {
+                        final events = service.getEventsForDate(selectedDate);
 
-                      if (events.isEmpty) {
-                        return Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.event_available,
-                                size: 48,
-                                color: Colors.grey[700],
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'No events scheduled',
-                                style: TextStyle(
+                        if (events.isEmpty) {
+                          return Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.event_available,
+                                  size: 48,
                                   color: Colors.grey[700],
-                                  fontSize: 16,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'No events scheduled',
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        // Show only first 3 events
+                        final displayEvents = events.take(3).toList();
+                        final remainingCount = events.length - 3;
+
+                        return Column(
+                          children: [
+                            Expanded(
+                              child: ListView.separated(
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                itemCount: displayEvents.length,
+                                separatorBuilder: (context, index) => const SizedBox(height: 8),
+                                itemBuilder: (context, index) {
+                                  final event = displayEvents[index];
+                                  return EventTile(
+                                    event: event,
+                                    onDelete: event.source == EventSource.userCreated
+                                        ? () => service.deleteEvent(event.id)
+                                        : null,
+                                  );
+                                },
+                              ),
+                            ),
+                            if (remainingCount > 0)
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Text(
+                                  '+$remainingCount more events',
+                                  style: TextStyle(
+                                    color: Colors.grey[500],
+                                    fontSize: 14,
+                                  ),
                                 ),
                               ),
-                            ],
-                          ),
+                          ],
                         );
-                      }
-
-                      return ListView.separated(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: events.length,
-                        separatorBuilder: (context, index) => const SizedBox(height: 8),
-                        itemBuilder: (context, index) {
-                          final event = events[index];
-                          return EventTile(
-                            event: event,
-                            onDelete: event.source == EventSource.userCreated
-                                ? () => service.deleteEvent(event.id)
-                                : null,
-                          );
-                        },
-                      );
-                    },
-                  ),
-                  Positioned(
-                    bottom: 16,
-                    right: 16,
-                    child: FloatingActionButton(
-                      onPressed: _showAddEventDialog,
-                      backgroundColor: Colors.deepPurpleAccent,
-                      child: const Icon(Icons.add),
+                      },
                     ),
                   ),
                 ],
