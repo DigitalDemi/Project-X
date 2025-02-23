@@ -24,12 +24,50 @@ class IcsService {
     }
   }
 
+  DateTime _convertToDateTime(dynamic date) {
+    if (date is DateTime) {
+      return date;
+    } else if (date is String) {
+      return DateTime.parse(date);
+    } else if (date is IcsDateTime) {
+      // Convert IcsDateTime format (e.g., "20250223T210000Z")
+      try {
+        final dt = date.dt;
+        if (dt == null) return DateTime.now();
+
+        // Parse the date string
+        final year = int.parse(dt.substring(0, 4));
+        final month = int.parse(dt.substring(4, 6));
+        final day = int.parse(dt.substring(6, 8));
+        final hour = int.parse(dt.substring(9, 11));
+        final minute = int.parse(dt.substring(11, 13));
+        final second = dt.length > 13 ? int.parse(dt.substring(13, 15)) : 0;
+
+        // Handle UTC ('Z' suffix)
+        if (dt.endsWith('Z')) {
+          return DateTime.utc(year, month, day, hour, minute, second);
+        } else {
+          return DateTime(year, month, day, hour, minute, second);
+        }
+      } catch (e) {
+        _logger.warning('Error parsing IcsDateTime: $e\nDate data: $date');
+        return DateTime.now();
+      }
+    } else if (date is Map && date['dt'] != null) {
+      // Handle raw date data
+      return DateTime.parse(date['dt']);
+    }
+
+    // If we can't convert it, log and return current time as fallback
+    _logger.warning('Could not parse date: $date (${date.runtimeType})');
+    return DateTime.now();
+  }
+
   Future<List<CalendarEvent>> fetchAndParseIcsEvents() async {
     final url = await getIcsUrl();
     if (url == null) return [];
 
     try {
-      // Set a timeout to prevent hanging on invalid URLs
       final response = await http.get(Uri.parse(url))
           .timeout(const Duration(seconds: 10));
           
@@ -40,16 +78,14 @@ class IcsService {
 
       final icsData = response.body;
       
-      // Verify this is actually an ICS file
       if (!icsData.toUpperCase().contains('BEGIN:VCALENDAR')) {
         _logger.severe('Invalid ICS format: not a calendar file');
         
-        // Check if we got a login page instead
         if (icsData.contains('doctype html') || 
             icsData.contains('accounts.google.com')) {
           throw Exception(
-            'Received login page instead of calendar data. ' +
-            'Make sure you\'re using the "Secret address in iCal format" ' +
+            'Received login page instead of calendar data. '
+            'Make sure you\'re using the "Secret address in iCal format" '
             'from Google Calendar settings.'
           );
         }
@@ -60,35 +96,44 @@ class IcsService {
       final calendar = ICalendar.fromString(icsData);
       final List<CalendarEvent> events = [];
 
-      // Parse events from the calendar data
       for (final event in calendar.data) {
         if (event['type'] == 'VEVENT') {
           try {
-            final startDt = event['dtstart'] as DateTime?;
-            final endDt = event['dtend'] as DateTime?;
+            final dynamic startDt = event['dtstart'];
+            final dynamic endDt = event['dtend'];
             
             if (startDt != null) {
+              final DateTime start = _convertToDateTime(startDt);
+              final DateTime end = endDt != null 
+                  ? _convertToDateTime(endDt)
+                  : start.add(const Duration(hours: 1));
+
               events.add(CalendarEvent(
                 id: event['uid'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
                 title: event['summary'] ?? 'Untitled Event',
-                startTime: startDt,
-                endTime: endDt ?? startDt.add(const Duration(hours: 1)),
-                description: event['description'],
+                startTime: start,
+                endTime: end,
+                description: event['description']?.toString(),
                 source: EventSource.icsFile,
               ));
             }
-          } catch (e) {
-            _logger.warning('Error parsing ICS event: $e');
+          } catch (e, stackTrace) {
+            _logger.warning(
+              'Error parsing ICS event: $e\nEvent data: ${event.toString()}\n$stackTrace'
+            );
             continue;
           }
         }
       }
 
+      // Sort events by start time
+      events.sort((a, b) => a.startTime.compareTo(b.startTime));
+      
       _logger.info('Successfully parsed ${events.length} events');
       return events;
       
-    } catch (e) {
-      _logger.severe('Error fetching ICS events: $e');
+    } catch (e, stackTrace) {
+      _logger.severe('Error fetching ICS events: $e\n$stackTrace');
       rethrow;
     }
   }
