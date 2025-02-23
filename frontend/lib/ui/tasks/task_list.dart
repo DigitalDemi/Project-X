@@ -1,5 +1,6 @@
 // lib/ui/tasks/task_list.dart
 import 'package:flutter/material.dart';
+import 'package:frontend/ui/calender/next_time_block.dart';
 
 class Task {
   String title;
@@ -53,15 +54,15 @@ class _TaskListSectionState extends State<TaskListSection> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 400, // Fixed height for the entire section
+      height: 400,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Task List
           Expanded(
             child: Container(
-              padding: const EdgeInsets.all(16),
-              margin: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+              margin: const EdgeInsets.only(right: 4),
               decoration: BoxDecoration(
                 color: Colors.grey[850],
                 borderRadius: BorderRadius.circular(12),
@@ -80,10 +81,14 @@ class _TaskListSectionState extends State<TaskListSection> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Icon(Icons.edit_note, color: Colors.white.withOpacity(0.7)),
+                      Icon(
+                        Icons.edit_note,
+                        color: Colors.white.withOpacity(0.7),
+                        size: 20,
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   
                   // Add task input
                   Row(
@@ -91,30 +96,41 @@ class _TaskListSectionState extends State<TaskListSection> {
                       Expanded(
                         child: TextField(
                           controller: _taskController,
-                          style: const TextStyle(color: Colors.white),
+                          style: const TextStyle(color: Colors.white, fontSize: 13),
                           decoration: InputDecoration(
                             hintText: 'Add new task',
-                            hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+                            hintStyle: TextStyle(
+                              color: Colors.white.withOpacity(0.5),
+                              fontSize: 13,
+                            ),
+                            isDense: true,
+                            contentPadding: const EdgeInsets.all(8),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           ),
                           onSubmitted: (_) => _addTask(),
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.add, color: Colors.deepPurpleAccent),
+                        icon: const Icon(
+                          Icons.add,
+                          color: Colors.deepPurpleAccent,
+                        ),
+                        iconSize: 20,
+                        padding: const EdgeInsets.all(4),
+                        constraints: const BoxConstraints(),
                         onPressed: _addTask,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   
                   // Tasks list
                   Expanded(
                     child: ListView.builder(
                       itemCount: tasks.length,
+                      padding: EdgeInsets.zero,
                       itemBuilder: (context, index) {
                         return Dismissible(
                           key: Key(tasks[index].title),
@@ -127,19 +143,24 @@ class _TaskListSectionState extends State<TaskListSection> {
                             child: const Icon(Icons.delete, color: Colors.white),
                           ),
                           child: ListTile(
+                            visualDensity: VisualDensity.compact,
                             contentPadding: EdgeInsets.zero,
-                            leading: Checkbox(
-                              value: tasks[index].isCompleted,
-                              onChanged: (_) => _toggleTask(index),
-                              activeColor: Colors.deepPurpleAccent,
+                            leading: Transform.scale(
+                              scale: 0.8,
+                              child: Checkbox(
+                                value: tasks[index].isCompleted,
+                                onChanged: (_) => _toggleTask(index),
+                                activeColor: Colors.deepPurpleAccent,
+                              ),
                             ),
                             title: Text(
                               tasks[index].title,
                               style: TextStyle(
                                 color: Colors.white70,
-                                decoration: tasks[index].isCompleted 
-                                  ? TextDecoration.lineThrough 
-                                  : null,
+                                fontSize: 13,
+                                decoration: tasks[index].isCompleted
+                                    ? TextDecoration.lineThrough
+                                    : null,
                               ),
                             ),
                           ),
@@ -154,40 +175,9 @@ class _TaskListSectionState extends State<TaskListSection> {
           
           // Next Time Block
           Expanded(
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              margin: const EdgeInsets.only(left: 8),
-              decoration: BoxDecoration(
-                color: Colors.grey[850],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'NEXT TIME BLOCK',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  Icon(
-                    Icons.calendar_today,
-                    size: 48,
-                    color: Colors.white.withOpacity(0.7),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Calendar sync coming soon',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 4),
+              child: const NextTimeBlock(),
             ),
           ),
         ],
