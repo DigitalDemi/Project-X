@@ -133,12 +133,7 @@ class _CalendarViewState extends State<CalendarView> {
                                 separatorBuilder: (context, index) => const SizedBox(height: 8),
                                 itemBuilder: (context, index) {
                                   final event = displayEvents[index];
-                                  return EventTile(
-                                    event: event,
-                                    onDelete: event.source == EventSource.userCreated
-                                        ? () => service.deleteEvent(event.id)
-                                        : null,
-                                  );
+                                  return EventTile(event: event);
                                 },
                               ),
                             ),

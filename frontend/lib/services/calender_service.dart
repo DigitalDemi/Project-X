@@ -75,14 +75,14 @@ class CalendarService extends ChangeNotifier {
 
       final icsData = response.body;
       final calendar = ICalendar.fromString(icsData);
-      final icsEvents = calendar.data;  // Use data instead of events
       
       // Remove old ICS events
+      await _db.delete('events', where: 'source = ?', whereArgs: [EventSource.icsFile.toString()]);
       _events.removeWhere((event) => event.source == EventSource.icsFile);
       
       // Add new ICS events
-      for (final icsEvent in icsEvents) {
-        if (icsEvent['type'] == 'VEVENT') {  // Check if it's an event
+      for (final icsEvent in calendar.data) {
+        if (icsEvent['type'] == 'VEVENT') {
           final startDt = icsEvent['dtstart'] as DateTime? ?? DateTime.now();
           final endDt = icsEvent['dtend'] as DateTime? ?? startDt.add(const Duration(hours: 1));
 
@@ -96,8 +96,6 @@ class CalendarService extends ChangeNotifier {
           );
 
           _events.add(event);
-
-          // Update database
           await _db.insert('events', event.toMap(),
               conflictAlgorithm: ConflictAlgorithm.replace);
         }
@@ -123,31 +121,30 @@ class CalendarService extends ChangeNotifier {
       );
 
       // Remove old Google events
+      await _db.delete('events', where: 'source = ?', whereArgs: [EventSource.googleCalendar.toString()]);
       _events.removeWhere((event) => event.source == EventSource.googleCalendar);
 
       // Add new Google events
-      final googleEvents = events.items?.map((googleEvent) {
+      for (final googleEvent in events.items ?? []) {
         final start = googleEvent.start?.dateTime ?? DateTime.now();
         final end = googleEvent.end?.dateTime ?? start.add(const Duration(hours: 1));
 
-        return CalendarEvent(
+        final event = CalendarEvent(
           id: googleEvent.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
           title: googleEvent.summary ?? 'Untitled Event',
           startTime: start,
           endTime: end,
           description: googleEvent.description,
           source: EventSource.googleCalendar,
+          externalId: googleEvent.id,
         );
-      }).toList() ?? [];
 
-      _events.addAll(googleEvents);
-      notifyListeners();
-
-      // Update database
-      for (final event in googleEvents) {
+        _events.add(event);
         await _db.insert('events', event.toMap(),
             conflictAlgorithm: ConflictAlgorithm.replace);
       }
+
+      notifyListeners();
     } catch (e) {
       _logger.warning('Error syncing Google events: $e');
     }
@@ -178,19 +175,61 @@ class CalendarService extends ChangeNotifier {
         endTime: DateTime.parse(eventData['end_time']),
         description: eventData['description'],
         source: EventSource.userCreated,
-        category: eventData['category'] != null 
-            ? EventCategory.values.firstWhere(
-                (c) => c.toString() == eventData['category'],
-                orElse: () => EventCategory.general,
-              )
-            : EventCategory.general,
+        category: eventData['category'] ?? EventCategory.general,
       );
 
+      // Save to local database
       await _db.insert('events', event.toMap(),
           conflictAlgorithm: ConflictAlgorithm.replace);
 
+      // Add to memory
       _events.add(event);
       notifyListeners();
+
+      // If Google Calendar is connected, create event there
+      if (_googleCalendarApi != null) {
+        try {
+          final startDateTime = google_calendar.EventDateTime()
+            ..dateTime = event.startTime
+            ..timeZone = 'UTC';
+
+          final endDateTime = google_calendar.EventDateTime()
+            ..dateTime = event.endTime
+            ..timeZone = 'UTC';
+
+          final googleEvent = google_calendar.Event()
+            ..summary = event.title
+            ..description = event.description
+            ..start = startDateTime
+            ..end = endDateTime;
+
+          final createdEvent = await _googleCalendarApi!.events.insert(
+            googleEvent,
+            'primary',
+          );
+
+          // Update local event with Google Calendar ID
+          if (createdEvent.id != null) {
+            final updatedEvent = event.copyWith(externalId: createdEvent.id);
+            await _db.update(
+              'events',
+              updatedEvent.toMap(),
+              where: 'id = ?',
+              whereArgs: [event.id],
+            );
+
+            // Update in memory
+            final index = _events.indexWhere((e) => e.id == event.id);
+            if (index != -1) {
+              _events[index] = updatedEvent;
+              notifyListeners();
+            }
+          }
+        } catch (e) {
+          _logger.warning('Failed to create event in Google Calendar: $e');
+          // Continue even if Google Calendar sync fails
+        }
+      }
     } catch (e) {
       _logger.warning('Error creating event: $e');
       rethrow;
@@ -200,34 +239,37 @@ class CalendarService extends ChangeNotifier {
   Future<void> deleteEvent(String id) async {
     try {
       final event = _events.firstWhere((e) => e.id == id);
+      
+      // Only allow deleting user-created events
       if (event.source != EventSource.userCreated) {
         throw Exception('Can only delete user-created events');
       }
 
+      // Delete from local database
       await _db.delete('events', where: 'id = ?', whereArgs: [id]);
+      
+      // Remove from memory
       _events.removeWhere((e) => e.id == id);
       notifyListeners();
+
+      // If Google Calendar is connected, delete from there
+      if (_googleCalendarApi != null && event.externalId != null) {
+        try {
+          await _googleCalendarApi!.events.delete(
+            'primary',
+            event.externalId!,
+          );
+        } catch (e) {
+          _logger.warning('Failed to delete event from Google Calendar: $e');
+          // Continue even if Google Calendar sync fails
+        }
+      }
+
     } catch (e) {
       _logger.warning('Error deleting event: $e');
       rethrow;
     }
   }
-
-  List<CalendarEvent> getEventsForDate(DateTime date) {
-    return _events.where((event) {
-      final eventDate = event.startTime;
-      return eventDate.year == date.year &&
-             eventDate.month == date.month &&
-             eventDate.day == date.day;
-    }).toList();
-  }
-
-  @override
-  void dispose() {
-    _googleCalendarApi = null;
-    super.dispose();
-  }
-  // Add this method to your CalendarService class
 
   Future<void> updateEvent(String id, Map<String, dynamic> eventData) async {
     try {
@@ -257,9 +299,10 @@ class CalendarService extends ChangeNotifier {
                 orElse: () => existingEvent.category,
               )
             : existingEvent.category,
+        externalId: existingEvent.externalId,
       );
 
-      // Update in database
+      // Update in local database
       await _db.update(
         'events',
         updatedEvent.toMap(),
@@ -272,9 +315,52 @@ class CalendarService extends ChangeNotifier {
       _events[index] = updatedEvent;
       notifyListeners();
 
+      // If Google Calendar is connected and event has externalId, update there
+      if (_googleCalendarApi != null && updatedEvent.externalId != null) {
+        try {
+          final startDateTime = google_calendar.EventDateTime()
+            ..dateTime = updatedEvent.startTime
+            ..timeZone = 'UTC';
+
+          final endDateTime = google_calendar.EventDateTime()
+            ..dateTime = updatedEvent.endTime
+            ..timeZone = 'UTC';
+
+          final googleEvent = google_calendar.Event()
+            ..summary = updatedEvent.title
+            ..description = updatedEvent.description
+            ..start = startDateTime
+            ..end = endDateTime;
+
+          await _googleCalendarApi!.events.update(
+            googleEvent,
+            'primary',
+            updatedEvent.externalId!,
+          );
+        } catch (e) {
+          _logger.warning('Failed to update event in Google Calendar: $e');
+          // Continue even if Google Calendar sync fails
+        }
+      }
+
     } catch (e) {
       _logger.warning('Error updating event: $e');
       rethrow;
     }
+  }
+
+  List<CalendarEvent> getEventsForDate(DateTime date) {
+    return _events.where((event) {
+      final eventDate = event.startTime;
+      return eventDate.year == date.year &&
+             eventDate.month == date.month &&
+             eventDate.day == date.day;
+    }).toList();
+  }
+
+  @override
+  void dispose() {
+    _googleCalendarApi = null;
+    super.dispose();
   }
 }
