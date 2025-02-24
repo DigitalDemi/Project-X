@@ -11,7 +11,7 @@ class AddTopicPage extends StatefulWidget {
 class _AddTopicPageState extends State<AddTopicPage> {
   final _subjectController = TextEditingController();
   final _topicController = TextEditingController();
-  String _status = 'Active';
+  final String _status = 'Active';
 
   @override
   void dispose() {

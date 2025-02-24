@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/services/calender_service.dart';
 import 'package:provider/provider.dart';
-import '../../models/calendar_event.dart';
 import 'event_tile.dart';
 import 'add_event_dialog.dart';
 

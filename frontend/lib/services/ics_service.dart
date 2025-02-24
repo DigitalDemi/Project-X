@@ -33,7 +33,6 @@ class IcsService {
       // Convert IcsDateTime format (e.g., "20250223T210000Z")
       try {
         final dt = date.dt;
-        if (dt == null) return DateTime.now();
 
         // Parse the date string
         final year = int.parse(dt.substring(0, 4));
