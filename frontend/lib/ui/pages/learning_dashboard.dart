@@ -1,124 +1,180 @@
+// lib/ui/pages/learning_dashboard.dart
+import 'dart:math' as Math;
+
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'dart:math' as math;
+import 'package:provider/provider.dart';
+import 'package:frontend/services/learning_service.dart';
 import 'package:frontend/ui/pages/add_topic_page.dart';
+import 'package:frontend/models/topic.dart';
 
 class LearningDashboard extends StatelessWidget {
   const LearningDashboard({super.key});
 
   @override
   Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => LearningService(),
+      child: const _LearningDashboardContent(),
+    );
+  }
+}
+
+class _LearningDashboardContent extends StatelessWidget {
+  const _LearningDashboardContent();
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  border: Border(
-                    bottom: BorderSide(
-                      color: Colors.grey[900]!,
-                      width: 1,
-                    ),
-                  ),
+        child: Consumer<LearningService>(
+          builder: (context, learningService, child) {
+            if (learningService.isLoading) {
+              return const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurpleAccent),
                 ),
+              );
+            }
+
+            if (learningService.error != null) {
+              return Center(
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Learning Dashboard',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                            letterSpacing: -0.5,
-                          ),
+                    Icon(Icons.error_outline, size: 48, color: Colors.red[400]),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Error: ${learningService.error}',
+                      style: TextStyle(color: Colors.red[400]),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => learningService.fetchTopics(),
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            final totalTopics = learningService.topics.length;
+            final dueTopics = learningService.getDueTopics();
+
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Colors.grey[900]!,
+                          width: 1,
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[900],
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            children: [
-                              Text(
-                                'Total Topics: ',
-                                style: TextStyle(
-                                  color: Colors.grey[400],
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Learning Dashboard',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                                letterSpacing: -0.5,
                               ),
-                              const Text(
-                                '3',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
                               ),
-                            ],
+                              decoration: BoxDecoration(
+                                color: Colors.grey[900],
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    'Total Topics: ',
+                                    style: TextStyle(
+                                      color: Colors.grey[400],
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    '$totalTopics',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AddTopicPage(),
+                                ),
+                              ).then((_) => learningService.fetchTopics());
+                            },
+                            icon: const Icon(Icons.add, color: Colors.white),
+                            label: const Text(
+                              'Add New Topic',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.deepPurpleAccent,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const AddTopicPage(),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.add, color: Colors.white),
-                        label: const Text(
-                          'Add New Topic',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurpleAccent,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        KnowledgeGraphCard(topics: learningService.topics),
+                        const SizedBox(height: 24),
+                        DueForReviewCard(dueTopics: dueTopics, onReview: (topicId, difficulty) {
+                          learningService.reviewTopic(topicId, difficulty);
+                        }),
+                        const SizedBox(height: 24),
+                        ChartGrid(learningService: learningService),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    KnowledgeGraphCard(),
-                    SizedBox(height: 24),
-                    DueForReviewCard(),
-                    SizedBox(height: 24),
-                    ChartGrid(),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
@@ -126,10 +182,21 @@ class LearningDashboard extends StatelessWidget {
 }
 
 class KnowledgeGraphCard extends StatelessWidget {
-  const KnowledgeGraphCard({super.key});
+  final List<Topic> topics;
+
+  const KnowledgeGraphCard({super.key, required this.topics});
 
   @override
   Widget build(BuildContext context) {
+    // Group topics by subject
+    final Map<String, List<Topic>> topicsBySubject = {};
+    for (final topic in topics) {
+      if (!topicsBySubject.containsKey(topic.subject)) {
+        topicsBySubject[topic.subject] = [];
+      }
+      topicsBySubject[topic.subject]!.add(topic);
+    }
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.grey[900],
@@ -161,9 +228,16 @@ class KnowledgeGraphCard extends StatelessWidget {
           SizedBox(
             height: 300,
             width: double.infinity,
-            child: CustomPaint(
-              painter: KnowledgeGraphPainter(),
-            ),
+            child: topics.isEmpty
+                ? Center(
+                    child: Text(
+                      'No topics yet. Add your first topic!',
+                      style: TextStyle(color: Colors.grey[400]),
+                    ),
+                  )
+                : CustomPaint(
+                    painter: KnowledgeGraphPainter(topicsBySubject),
+                  ),
           ),
         ],
       ),
@@ -172,6 +246,10 @@ class KnowledgeGraphCard extends StatelessWidget {
 }
 
 class KnowledgeGraphPainter extends CustomPainter {
+  final Map<String, List<Topic>> topicsBySubject;
+
+  KnowledgeGraphPainter(this.topicsBySubject);
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -189,41 +267,66 @@ class KnowledgeGraphPainter extends CustomPainter {
     );
 
     final center = Offset(size.width / 2, size.height / 2);
-    final mainNodeRadius = 40.0;
     
-    // Main node
-    canvas.drawCircle(center, mainNodeRadius, nodeFillPaint);
-    canvas.drawCircle(center, mainNodeRadius, paint);
-    _drawText(canvas, textPainter, 'Mathematics', center, Colors.white70);
-
-    // Satellite nodes
-    final nodeRadius = 30.0;
+    // Only show visualization if there are subjects
+    if (topicsBySubject.isEmpty) return;
+    
+    // Draw main subjects as nodes
+    final subjects = topicsBySubject.keys.toList();
+    final subjectRadius = 40.0;
     final orbitRadius = 120.0;
-    final topics = ['Algebra', 'Calculus', 'Statistics', 'Geometry'];
     
-    for (var i = 0; i < topics.length; i++) {
-      final angle = (i * 2 * math.pi / topics.length) - math.pi / 4;
-      final x = center.dx + orbitRadius * math.cos(angle);
-      final y = center.dy + orbitRadius * math.sin(angle);
+    for (var i = 0; i < subjects.length; i++) {
+      final subject = subjects[i];
+      final angle = (i * 2 * 3.14159 / subjects.length) - 3.14159 / 4;
+      final x = center.dx + orbitRadius * 0.8 * Math.cos(angle);
+      final y = center.dy + orbitRadius * 0.8 * Math.sin(angle);
       final nodeCenter = Offset(x, y);
-
-      // Connection line
-      canvas.drawLine(
-        center + Offset(
-          mainNodeRadius * math.cos(angle),
-          mainNodeRadius * math.sin(angle),
-        ),
-        nodeCenter + Offset(
-          -nodeRadius * math.cos(angle),
-          -nodeRadius * math.sin(angle),
-        ),
-        paint,
-      );
-
+      
       // Node
-      canvas.drawCircle(nodeCenter, nodeRadius, nodeFillPaint);
-      canvas.drawCircle(nodeCenter, nodeRadius, paint);
-      _drawText(canvas, textPainter, topics[i], nodeCenter, Colors.white70);
+      canvas.drawCircle(nodeCenter, subjectRadius, nodeFillPaint);
+      canvas.drawCircle(nodeCenter, subjectRadius, paint);
+      _drawText(canvas, textPainter, subject, nodeCenter, Colors.white70);
+      
+      // Draw topics around subject
+      final topics = topicsBySubject[subject]!;
+      
+      if (topics.isNotEmpty) {
+        final topicRadius = 20.0;
+        final topicOrbitRadius = subjectRadius * 2.0;
+        
+        for (var j = 0; j < topics.length; j++) {
+          final topic = topics[j];
+          final topicAngle = angle + (j * 2 * 3.14159 / topics.length) - 3.14159 / 4;
+          
+          final tx = x + topicOrbitRadius * Math.cos(topicAngle);
+          final ty = y + topicOrbitRadius * Math.sin(topicAngle);
+          final topicCenter = Offset(tx, ty);
+          
+          // Connection line
+          canvas.drawLine(nodeCenter, topicCenter, paint);
+          
+          // Topic node with color based on stage
+          final topicFillPaint = Paint()
+            ..color = _getStageColor(topic.stage)
+            ..style = PaintingStyle.fill;
+            
+          canvas.drawCircle(topicCenter, topicRadius, topicFillPaint);
+          canvas.drawCircle(topicCenter, topicRadius, paint);
+          _drawText(canvas, textPainter, topic.name, topicCenter, Colors.black);
+        }
+      }
+    }
+  }
+
+  Color _getStageColor(String stage) {
+    switch (stage) {
+      case 'first_time': return Colors.red.withOpacity(0.7);
+      case 'early_stage': return Colors.orange.withOpacity(0.7);
+      case 'mid_stage': return Colors.yellow.withOpacity(0.7);
+      case 'late_stage': return Colors.green.withOpacity(0.7);
+      case 'mastered': return Colors.blue.withOpacity(0.7);
+      default: return Colors.grey.withOpacity(0.7);
     }
   }
 
@@ -232,11 +335,11 @@ class KnowledgeGraphPainter extends CustomPainter {
       text: text,
       style: TextStyle(
         color: color,
-        fontSize: 14,
+        fontSize: 12,
         fontWeight: FontWeight.w500,
       ),
     );
-    textPainter.layout();
+    textPainter.layout(maxWidth: 80);
     textPainter.paint(
       canvas,
       center + Offset(-textPainter.width / 2, -textPainter.height / 2),
@@ -244,11 +347,18 @@ class KnowledgeGraphPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
 
 class DueForReviewCard extends StatelessWidget {
-  const DueForReviewCard({super.key});
+  final List<Topic> dueTopics;
+  final Function(String, String) onReview;
+
+  const DueForReviewCard({
+    super.key, 
+    required this.dueTopics,
+    required this.onReview,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -280,21 +390,100 @@ class DueForReviewCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          const Text(
-            'No topics due for review!',
+          dueTopics.isEmpty
+              ? const Text(
+                  'No topics due for review!',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                  ),
+                )
+              : Column(
+                  children: dueTopics.map((topic) => _buildReviewItem(context, topic)).toList(),
+                ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReviewItem(BuildContext context, Topic topic) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[850],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${topic.subject} - ${topic.name}',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Stage: ${topic.stage}',
             style: TextStyle(
-              color: Colors.white70,
+              color: Colors.grey[400],
               fontSize: 14,
             ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildDifficultyButton(
+                context, 
+                'Hard', 
+                Colors.red[400]!, 
+                () => onReview(topic.id, 'hard')
+              ),
+              _buildDifficultyButton(
+                context, 
+                'Normal', 
+                Colors.amber, 
+                () => onReview(topic.id, 'normal')
+              ),
+              _buildDifficultyButton(
+                context, 
+                'Easy', 
+                Colors.green[400]!, 
+                () => onReview(topic.id, 'easy')
+              ),
+            ],
           ),
         ],
       ),
     );
   }
+
+  Widget _buildDifficultyButton(
+    BuildContext context, 
+    String label, 
+    Color color, 
+    VoidCallback onPressed
+  ) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor: color,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      ),
+      child: Text(label),
+    );
+  }
 }
 
 class ChartGrid extends StatelessWidget {
-  const ChartGrid({super.key});
+  final LearningService learningService;
+
+  const ChartGrid({super.key, required this.learningService});
 
   Widget _buildChart(String title, Widget chart) {
     return Container(
@@ -326,6 +515,8 @@ class ChartGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final stagesDistribution = learningService.getStagesDistribution();
+    
     return Column(
       children: [
         Row(
@@ -339,97 +530,30 @@ class ChartGrid extends StatelessWidget {
                     borderData: FlBorderData(show: false),
                     gridData: FlGridData(show: false),
                     titlesData: FlTitlesData(
-                      topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                       bottomTitles: AxisTitles(
                         sideTitles: SideTitles(
                           showTitles: true,
                           getTitlesWidget: (value, meta) {
-                            switch (value.toInt()) {
-                              case 0:
-                                return const Text('First Time',
-                                    style: TextStyle(color: Colors.white70));
-                              case 1:
-                                return const Text('Early Stage',
-                                    style: TextStyle(color: Colors.white70));
-                              default:
-                                return const Text('');
+                            final stages = ['first_time', 'early_stage', 'mid_stage', 'late_stage', 'mastered'];
+                            if (value.toInt() < stages.length) {
+                              return Text(
+                                stages[value.toInt()].split('_').join(' ').capitalize(),
+                                style: const TextStyle(color: Colors.white70, fontSize: 10),
+                              );
                             }
+                            return const Text('');
                           },
                         ),
                       ),
                     ),
-                    barGroups: [
-                      BarChartGroupData(
-                        x: 0,
-                        barRods: [
-                          BarChartRodData(
-                            toY: 0.75,
-                            color: Colors.deepPurpleAccent.withOpacity(0.7),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ],
-                      ),
-                      BarChartGroupData(
-                        x: 1,
-                        barRods: [
-                          BarChartRodData(
-                            toY: 0.75,
-                            color: Colors.deepPurpleAccent.withOpacity(0.7),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ],
-                      ),
-                    ],
+                    barGroups: _createBarGroups(stagesDistribution),
                   ),
                 ),
               ),
             ),
             const SizedBox(width: 16),
-            Expanded(
-              child: _buildChart(
-                'Review Difficulty',
-                BarChart(
-                  BarChartData(
-                    alignment: BarChartAlignment.spaceAround,
-                    borderData: FlBorderData(show: false),
-                    gridData: FlGridData(show: false),
-                    titlesData: FlTitlesData(
-                      topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    ),
-                    barGroups: [
-                      BarChartGroupData(
-                        x: 0,
-                        barRods: [
-                          BarChartRodData(
-                            toY: 2.0,
-                            color: Colors.deepPurpleAccent.withOpacity(0.7),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ],
-                      ),
-                      BarChartGroupData(
-                        x: 1,
-                        barRods: [
-                          BarChartRodData(
-                            toY: 1.0,
-                            color: Colors.deepPurpleAccent.withOpacity(0.7),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
             Expanded(
               child: _buildChart(
                 'Learning Stage Distribution',
@@ -437,79 +561,7 @@ class ChartGrid extends StatelessWidget {
                   PieChartData(
                     sectionsSpace: 0,
                     centerSpaceRadius: 40,
-                    sections: [
-                      PieChartSectionData(
-                        value: 50,
-                        color: Colors.deepPurpleAccent.withOpacity(0.7),
-                        title: 'First Time',
-                        titleStyle: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12,
-                        ),
-                        radius: 50,
-                      ),
-                      PieChartSectionData(
-                        value: 50,
-                        color: Colors.deepPurpleAccent.withOpacity(0.4),
-                        title: 'Early Stage',
-                        titleStyle: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12,
-                        ),
-                        radius: 50,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _buildChart(
-                'Review Timeline',
-                LineChart(
-                  LineChartData(
-                    gridData: FlGridData(
-                      show: true,
-                      drawVerticalLine: true,
-                      horizontalInterval: 1,
-                      verticalInterval: 1,
-                      getDrawingHorizontalLine: (value) {
-                        return FlLine(
-                          color: Colors.white10,
-                          strokeWidth: 1,
-                        );
-                      },
-                      getDrawingVerticalLine: (value) {
-                        return FlLine(
-                          color: Colors.white10,
-                          strokeWidth: 1,
-                        );
-                      },
-                    ),
-                    titlesData: FlTitlesData(show: false),
-                    borderData: FlBorderData(show: false),
-                    lineBarsData: [
-                      LineChartBarData(
-                        spots: const [
-                          FlSpot(0, 3),
-                          FlSpot(2.6, 2),
-                          FlSpot(4.9, 5),
-                          FlSpot(6.8, 3.1),
-                          FlSpot(8, 4),
-                          FlSpot(9.5, 3),
-                          FlSpot(11, 4),
-                        ],
-                        isCurved: true,
-                        color: Colors.deepPurpleAccent,
-                        barWidth: 3,
-                        dotData: FlDotData(show: false),
-                        belowBarData: BarAreaData(
-                          show: true,
-                          color: Colors.deepPurpleAccent.withOpacity(0.2),
-                        ),
-                      ),
-                    ],
+                    sections: _createPieSections(stagesDistribution),
                   ),
                 ),
               ),
@@ -518,5 +570,72 @@ class ChartGrid extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  List<BarChartGroupData> _createBarGroups(Map<String, int> stagesDistribution) {
+    final stages = ['first_time', 'early_stage', 'mid_stage', 'late_stage', 'mastered'];
+    final maxValue = stagesDistribution.values.fold(0, (max, value) => value > max ? value : max);
+    
+    return List.generate(stages.length, (index) {
+      final stage = stages[index];
+      final value = stagesDistribution[stage] ?? 0;
+      return BarChartGroupData(
+        x: index,
+        barRods: [
+          BarChartRodData(
+            toY: maxValue > 0 ? value.toDouble() : 0.1,
+            color: Colors.deepPurpleAccent.withOpacity(0.7),
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ],
+      );
+    });
+  }
+
+  List<PieChartSectionData> _createPieSections(Map<String, int> stagesDistribution) {
+    final stages = ['first_time', 'early_stage', 'mid_stage', 'late_stage', 'mastered'];
+    final colors = [
+      Colors.red.withOpacity(0.7),
+      Colors.orange.withOpacity(0.7),
+      Colors.yellow.withOpacity(0.7),
+      Colors.green.withOpacity(0.7),
+      Colors.blue.withOpacity(0.7),
+    ];
+    
+    final total = stagesDistribution.values.fold(0, (sum, value) => sum + value);
+    
+    if (total == 0) {
+      // If no data, show placeholder
+      return [
+        PieChartSectionData(
+          value: 1,
+          color: Colors.grey.withOpacity(0.3),
+          title: 'No data',
+          radius: 50,
+          titleStyle: const TextStyle(color: Colors.white70, fontSize: 12),
+        ),
+      ];
+    }
+    
+    return List.generate(stages.length, (index) {
+      final stage = stages[index];
+      final value = stagesDistribution[stage] ?? 0;
+      return PieChartSectionData(
+        value: value.toDouble(),
+        color: colors[index],
+        title: value > 0 ? '${(value / total * 100).round()}%' : '',
+        radius: 50,
+        titleStyle: const TextStyle(color: Colors.white, fontSize: 12),
+      );
+    });
+  }
+}
+
+// Extension to capitalize first letter of each word
+extension StringExtension on String {
+  String capitalize() {
+    return split(' ').map((word) => word.isNotEmpty 
+      ? '${word[0].toUpperCase()}${word.substring(1)}' 
+      : '').join(' ');
   }
 }

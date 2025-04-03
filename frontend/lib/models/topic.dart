@@ -20,19 +20,6 @@ class Topic {
     this.reviewHistory = const [],
   });
 
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'subject': subject,
-      'name': name,
-      'status': status,
-      'stage': stage,
-      'created_at': createdAt.toIso8601String(),
-      'next_review': nextReview.toIso8601String(),
-      'review_history': reviewHistory,
-    };
-  }
-
   factory Topic.fromMap(Map<String, dynamic> map) {
     return Topic(
       id: map['id'],
@@ -44,5 +31,18 @@ class Topic {
       nextReview: DateTime.parse(map['next_review']),
       reviewHistory: List<Map<String, dynamic>>.from(map['review_history'] ?? []),
     );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'subject': subject,
+      'name': name,
+      'status': status,
+      'stage': stage,
+      'created_at': createdAt.toIso8601String(),
+      'next_review': nextReview.toIso8601String(),
+      'review_history': reviewHistory,
+    };
   }
 }

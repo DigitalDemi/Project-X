@@ -1,6 +1,6 @@
-// lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:frontend/services/calender_service.dart';
+import 'package:frontend/services/learning_service.dart';
 import 'package:provider/provider.dart';
 import 'services/local_database.dart';
 import 'services/api_service.dart';
@@ -31,8 +31,9 @@ void main() async {
   // Initialize feature services
   final taskService = TaskService(syncService);
   final topicService = TopicService(syncService);
-  final calendarService = CalendarService(database);  // Pass the Database instance
+  final calendarService = CalendarService(database);
   final profileService = ProfileService();
+  final learningService = LearningService(); // Initialize the new service
 
   runApp(
     MultiProvider(
@@ -41,8 +42,9 @@ void main() async {
         ChangeNotifierProvider(create: (_) => taskService),
         ChangeNotifierProvider(create: (_) => topicService),
         ChangeNotifierProvider(create: (_) => calendarService),
+        ChangeNotifierProvider(create: (_) => learningService), // Add learning service
       ],
-      child: const MyApp(),
+      child: const MyApp(), // This is fine since MyApp is already defined
     ),
   );
 }
