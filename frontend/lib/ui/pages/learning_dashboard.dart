@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:frontend/services/learning_service.dart';
 import 'package:frontend/ui/pages/add_topic_page.dart';
 import 'package:frontend/models/topic.dart';
+import 'package:frontend/ui/content/topic_content_page.dart';
 
 class LearningDashboard extends StatelessWidget {
   const LearningDashboard({super.key});
@@ -33,7 +34,9 @@ class _LearningDashboardContent extends StatelessWidget {
             if (learningService.isLoading) {
               return const Center(
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurpleAccent),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    Colors.deepPurpleAccent,
+                  ),
                 ),
               );
             }
@@ -72,10 +75,7 @@ class _LearningDashboardContent extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.black,
                       border: Border(
-                        bottom: BorderSide(
-                          color: Colors.grey[900]!,
-                          width: 1,
-                        ),
+                        bottom: BorderSide(color: Colors.grey[900]!, width: 1),
                       ),
                     ),
                     child: Column(
@@ -163,9 +163,12 @@ class _LearningDashboardContent extends StatelessWidget {
                       children: [
                         KnowledgeGraphCard(topics: learningService.topics),
                         const SizedBox(height: 24),
-                        DueForReviewCard(dueTopics: dueTopics, onReview: (topicId, difficulty) {
-                          learningService.reviewTopic(topicId, difficulty);
-                        }),
+                        DueForReviewCard(
+                          dueTopics: dueTopics,
+                          onReview: (topicId, difficulty) {
+                            learningService.reviewTopic(topicId, difficulty);
+                          },
+                        ),
                         const SizedBox(height: 24),
                         ChartGrid(learningService: learningService),
                       ],
@@ -228,16 +231,17 @@ class KnowledgeGraphCard extends StatelessWidget {
           SizedBox(
             height: 300,
             width: double.infinity,
-            child: topics.isEmpty
-                ? Center(
-                    child: Text(
-                      'No topics yet. Add your first topic!',
-                      style: TextStyle(color: Colors.grey[400]),
+            child:
+                topics.isEmpty
+                    ? Center(
+                      child: Text(
+                        'No topics yet. Add your first topic!',
+                        style: TextStyle(color: Colors.grey[400]),
+                      ),
+                    )
+                    : CustomPaint(
+                      painter: KnowledgeGraphPainter(topicsBySubject),
                     ),
-                  )
-                : CustomPaint(
-                    painter: KnowledgeGraphPainter(topicsBySubject),
-                  ),
           ),
         ],
       ),
@@ -252,14 +256,16 @@ class KnowledgeGraphPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.deepPurpleAccent
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
+    final paint =
+        Paint()
+          ..color = Colors.deepPurpleAccent
+          ..strokeWidth = 2
+          ..style = PaintingStyle.stroke;
 
-    final nodeFillPaint = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.fill;
+    final nodeFillPaint =
+        Paint()
+          ..color = Colors.black
+          ..style = PaintingStyle.fill;
 
     final textPainter = TextPainter(
       textDirection: TextDirection.ltr,
@@ -267,50 +273,52 @@ class KnowledgeGraphPainter extends CustomPainter {
     );
 
     final center = Offset(size.width / 2, size.height / 2);
-    
+
     // Only show visualization if there are subjects
     if (topicsBySubject.isEmpty) return;
-    
+
     // Draw main subjects as nodes
     final subjects = topicsBySubject.keys.toList();
     final subjectRadius = 40.0;
     final orbitRadius = 120.0;
-    
+
     for (var i = 0; i < subjects.length; i++) {
       final subject = subjects[i];
       final angle = (i * 2 * 3.14159 / subjects.length) - 3.14159 / 4;
       final x = center.dx + orbitRadius * 0.8 * Math.cos(angle);
       final y = center.dy + orbitRadius * 0.8 * Math.sin(angle);
       final nodeCenter = Offset(x, y);
-      
+
       // Node
       canvas.drawCircle(nodeCenter, subjectRadius, nodeFillPaint);
       canvas.drawCircle(nodeCenter, subjectRadius, paint);
       _drawText(canvas, textPainter, subject, nodeCenter, Colors.white70);
-      
+
       // Draw topics around subject
       final topics = topicsBySubject[subject]!;
-      
+
       if (topics.isNotEmpty) {
         final topicRadius = 20.0;
         final topicOrbitRadius = subjectRadius * 2.0;
-        
+
         for (var j = 0; j < topics.length; j++) {
           final topic = topics[j];
-          final topicAngle = angle + (j * 2 * 3.14159 / topics.length) - 3.14159 / 4;
-          
+          final topicAngle =
+              angle + (j * 2 * 3.14159 / topics.length) - 3.14159 / 4;
+
           final tx = x + topicOrbitRadius * Math.cos(topicAngle);
           final ty = y + topicOrbitRadius * Math.sin(topicAngle);
           final topicCenter = Offset(tx, ty);
-          
+
           // Connection line
           canvas.drawLine(nodeCenter, topicCenter, paint);
-          
+
           // Topic node with color based on stage
-          final topicFillPaint = Paint()
-            ..color = _getStageColor(topic.stage)
-            ..style = PaintingStyle.fill;
-            
+          final topicFillPaint =
+              Paint()
+                ..color = _getStageColor(topic.stage)
+                ..style = PaintingStyle.fill;
+
           canvas.drawCircle(topicCenter, topicRadius, topicFillPaint);
           canvas.drawCircle(topicCenter, topicRadius, paint);
           _drawText(canvas, textPainter, topic.name, topicCenter, Colors.black);
@@ -321,23 +329,31 @@ class KnowledgeGraphPainter extends CustomPainter {
 
   Color _getStageColor(String stage) {
     switch (stage) {
-      case 'first_time': return Colors.red.withOpacity(0.7);
-      case 'early_stage': return Colors.orange.withOpacity(0.7);
-      case 'mid_stage': return Colors.yellow.withOpacity(0.7);
-      case 'late_stage': return Colors.green.withOpacity(0.7);
-      case 'mastered': return Colors.blue.withOpacity(0.7);
-      default: return Colors.grey.withOpacity(0.7);
+      case 'first_time':
+        return Colors.red.withOpacity(0.7);
+      case 'early_stage':
+        return Colors.orange.withOpacity(0.7);
+      case 'mid_stage':
+        return Colors.yellow.withOpacity(0.7);
+      case 'late_stage':
+        return Colors.green.withOpacity(0.7);
+      case 'mastered':
+        return Colors.blue.withOpacity(0.7);
+      default:
+        return Colors.grey.withOpacity(0.7);
     }
   }
 
-  void _drawText(Canvas canvas, TextPainter textPainter, String text, Offset center, Color color) {
+  void _drawText(
+    Canvas canvas,
+    TextPainter textPainter,
+    String text,
+    Offset center,
+    Color color,
+  ) {
     textPainter.text = TextSpan(
       text: text,
-      style: TextStyle(
-        color: color,
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-      ),
+      style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w500),
     );
     textPainter.layout(maxWidth: 80);
     textPainter.paint(
@@ -355,7 +371,7 @@ class DueForReviewCard extends StatelessWidget {
   final Function(String, String) onReview;
 
   const DueForReviewCard({
-    super.key, 
+    super.key,
     required this.dueTopics,
     required this.onReview,
   });
@@ -373,11 +389,7 @@ class DueForReviewCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.access_time,
-                color: Colors.deepPurpleAccent,
-                size: 24,
-              ),
+              Icon(Icons.access_time, color: Colors.deepPurpleAccent, size: 24),
               const SizedBox(width: 8),
               const Text(
                 'Due for Review',
@@ -392,15 +404,15 @@ class DueForReviewCard extends StatelessWidget {
           const SizedBox(height: 16),
           dueTopics.isEmpty
               ? const Text(
-                  'No topics due for review!',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
-                )
+                'No topics due for review!',
+                style: TextStyle(color: Colors.white70, fontSize: 14),
+              )
               : Column(
-                  children: dueTopics.map((topic) => _buildReviewItem(context, topic)).toList(),
-                ),
+                children:
+                    dueTopics
+                        .map((topic) => _buildReviewItem(context, topic))
+                        .toList(),
+              ),
         ],
       ),
     );
@@ -417,43 +429,63 @@ class DueForReviewCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '${topic.subject} - ${topic.name}',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${topic.subject} - ${topic.name}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              IconButton(
+                icon: const Icon(
+                  Icons.menu_book,
+                  color: Colors.deepPurpleAccent,
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TopicContentPage(topic: topic),
+                    ),
+                  );
+                },
+                tooltip: 'View Learning Resources',
+                iconSize: 20,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
           ),
           const SizedBox(height: 8),
           Text(
             'Stage: ${topic.stage}',
-            style: TextStyle(
-              color: Colors.grey[400],
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.grey[400], fontSize: 14),
           ),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildDifficultyButton(
-                context, 
-                'Hard', 
-                Colors.red[400]!, 
-                () => onReview(topic.id, 'hard')
+                context,
+                'Hard',
+                Colors.red[400]!,
+                () => onReview(topic.id, 'hard'),
               ),
               _buildDifficultyButton(
-                context, 
-                'Normal', 
-                Colors.amber, 
-                () => onReview(topic.id, 'normal')
+                context,
+                'Normal',
+                Colors.amber,
+                () => onReview(topic.id, 'normal'),
               ),
               _buildDifficultyButton(
-                context, 
-                'Easy', 
-                Colors.green[400]!, 
-                () => onReview(topic.id, 'easy')
+                context,
+                'Easy',
+                Colors.green[400]!,
+                () => onReview(topic.id, 'easy'),
               ),
             ],
           ),
@@ -463,10 +495,10 @@ class DueForReviewCard extends StatelessWidget {
   }
 
   Widget _buildDifficultyButton(
-    BuildContext context, 
-    String label, 
-    Color color, 
-    VoidCallback onPressed
+    BuildContext context,
+    String label,
+    Color color,
+    VoidCallback onPressed,
   ) {
     return ElevatedButton(
       onPressed: onPressed,
@@ -504,10 +536,7 @@ class ChartGrid extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          SizedBox(
-            height: 200,
-            child: chart,
-          ),
+          SizedBox(height: 200, child: chart),
         ],
       ),
     );
@@ -516,7 +545,7 @@ class ChartGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final stagesDistribution = learningService.getStagesDistribution();
-    
+
     return Column(
       children: [
         Row(
@@ -530,17 +559,33 @@ class ChartGrid extends StatelessWidget {
                     borderData: FlBorderData(show: false),
                     gridData: FlGridData(show: false),
                     titlesData: FlTitlesData(
-                      topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
                       bottomTitles: AxisTitles(
                         sideTitles: SideTitles(
                           showTitles: true,
                           getTitlesWidget: (value, meta) {
-                            final stages = ['first_time', 'early_stage', 'mid_stage', 'late_stage', 'mastered'];
+                            final stages = [
+                              'first_time',
+                              'early_stage',
+                              'mid_stage',
+                              'late_stage',
+                              'mastered',
+                            ];
                             if (value.toInt() < stages.length) {
                               return Text(
-                                stages[value.toInt()].split('_').join(' ').capitalize(),
-                                style: const TextStyle(color: Colors.white70, fontSize: 10),
+                                stages[value.toInt()]
+                                    .split('_')
+                                    .join(' ')
+                                    .capitalize(),
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 10,
+                                ),
                               );
                             }
                             return const Text('');
@@ -572,10 +617,21 @@ class ChartGrid extends StatelessWidget {
     );
   }
 
-  List<BarChartGroupData> _createBarGroups(Map<String, int> stagesDistribution) {
-    final stages = ['first_time', 'early_stage', 'mid_stage', 'late_stage', 'mastered'];
-    final maxValue = stagesDistribution.values.fold(0, (max, value) => value > max ? value : max);
-    
+  List<BarChartGroupData> _createBarGroups(
+    Map<String, int> stagesDistribution,
+  ) {
+    final stages = [
+      'first_time',
+      'early_stage',
+      'mid_stage',
+      'late_stage',
+      'mastered',
+    ];
+    final maxValue = stagesDistribution.values.fold(
+      0,
+      (max, value) => value > max ? value : max,
+    );
+
     return List.generate(stages.length, (index) {
       final stage = stages[index];
       final value = stagesDistribution[stage] ?? 0;
@@ -592,8 +648,16 @@ class ChartGrid extends StatelessWidget {
     });
   }
 
-  List<PieChartSectionData> _createPieSections(Map<String, int> stagesDistribution) {
-    final stages = ['first_time', 'early_stage', 'mid_stage', 'late_stage', 'mastered'];
+  List<PieChartSectionData> _createPieSections(
+    Map<String, int> stagesDistribution,
+  ) {
+    final stages = [
+      'first_time',
+      'early_stage',
+      'mid_stage',
+      'late_stage',
+      'mastered',
+    ];
     final colors = [
       Colors.red.withOpacity(0.7),
       Colors.orange.withOpacity(0.7),
@@ -601,9 +665,12 @@ class ChartGrid extends StatelessWidget {
       Colors.green.withOpacity(0.7),
       Colors.blue.withOpacity(0.7),
     ];
-    
-    final total = stagesDistribution.values.fold(0, (sum, value) => sum + value);
-    
+
+    final total = stagesDistribution.values.fold(
+      0,
+      (sum, value) => sum + value,
+    );
+
     if (total == 0) {
       // If no data, show placeholder
       return [
@@ -616,7 +683,7 @@ class ChartGrid extends StatelessWidget {
         ),
       ];
     }
-    
+
     return List.generate(stages.length, (index) {
       final stage = stages[index];
       final value = stagesDistribution[stage] ?? 0;
@@ -634,8 +701,13 @@ class ChartGrid extends StatelessWidget {
 // Extension to capitalize first letter of each word
 extension StringExtension on String {
   String capitalize() {
-    return split(' ').map((word) => word.isNotEmpty 
-      ? '${word[0].toUpperCase()}${word.substring(1)}' 
-      : '').join(' ');
+    return split(' ')
+        .map(
+          (word) =>
+              word.isNotEmpty
+                  ? '${word[0].toUpperCase()}${word.substring(1)}'
+                  : '',
+        )
+        .join(' ');
   }
 }

@@ -1,13 +1,18 @@
+// lib/services/content_service.dart
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:frontend/models/content.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ContentService extends ChangeNotifier {
   final String baseUrl = 'http://localhost:8000';
   List<Content> _content = [];
   bool _isLoading = false;
   String? _error;
+  
+  // Add this to cache content by topic
+  final Map<String, List<Content>> _contentByTopic = {};
 
   ContentService() {
     fetchAllContent();
@@ -45,6 +50,11 @@ class ContentService extends ChangeNotifier {
   }
 
   Future<List<Content>> getContentByTopic(String topicId) async {
+    // Check if we have cached content for this topic
+    if (_contentByTopic.containsKey(topicId)) {
+      return _contentByTopic[topicId]!;
+    }
+    
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/content/by-topic/$topicId'),
@@ -52,12 +62,46 @@ class ContentService extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return (data as List).map((item) => Content.fromMap(item)).toList();
+        final contentList = (data as List).map((item) => Content.fromMap(item)).toList();
+        
+        // Cache the content
+        _contentByTopic[topicId] = contentList;
+        
+        return contentList;
       } else {
         throw Exception('Failed to load content for topic');
       }
     } catch (e) {
       throw Exception('Error getting content: $e');
     }
+  }
+  
+  // Add these new methods
+  
+  List<Content> getContentByType(String type) {
+    return _content.where((item) => item.type == type).toList();
+  }
+  
+  List<Content> searchContent(String query) {
+    return _content.where((item) => 
+      item.title.toLowerCase().contains(query.toLowerCase()) ||
+      item.content.toLowerCase().contains(query.toLowerCase())
+    ).toList();
+  }
+  
+  List<String> getAvailableSubjects() {
+    // Extract subjects from related topic IDs
+    final Set<String> subjects = {};
+    
+    for (final content in _content) {
+      for (final topicId in content.relatedTopicIds) {
+        final parts = topicId.split(':');
+        if (parts.isNotEmpty) {
+          subjects.add(parts[0]);
+        }
+      }
+    }
+    
+    return subjects.toList()..sort();
   }
 }

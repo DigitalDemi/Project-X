@@ -265,6 +265,26 @@ async def get_content_by_topic(topic_id: str):
     content_list = db.get_content_by_topic(topic_id)
     return content_list
 
+@app.get("/content/")
+async def get_all_content():
+    content_list = db.get_all_content()
+    return content_list
+
+@app.get("/content/by-subject/{subject}")
+async def get_content_by_subject(subject: str):
+    content_list = db.get_content_by_subject(subject)
+    return content_list
+
+@app.get("/content/by-type/{content_type}")
+async def get_content_by_type(content_type: str):
+    content_list = db.get_content_by_type(content_type)
+    return content_list
+
+@app.get("/content/search")
+async def search_content(query: str):
+    content_list = db.search_content(query)
+    return content_list
+
 @app.on_event("shutdown")
 async def shutdown_event():
     db.close()

@@ -7,6 +7,7 @@ import 'package:frontend/ui/tasks/task_card.dart';
 import 'package:frontend/ui/tasks/task_list.dart';
 import 'package:frontend/ui/pages/learning_dashboard.dart';
 import 'package:frontend/ui/pages/modules_view.dart';
+import 'package:frontend/ui/content/learning_resources_page.dart';
 
 class Body extends StatefulWidget {
   const Body({super.key});
@@ -45,6 +46,8 @@ class _BodyState extends State<Body> {
       case 1:
         return const LearningDashboard();
       case 2:
+        return const LearningResourcesPage(); // New page for resources
+      case 3:
         return const ModulesView();
       default:
         return const SizedBox.shrink();

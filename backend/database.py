@@ -368,3 +368,77 @@ class Neo4jConnection:
             except Exception as e:
                 print(f"Database error in get_content_by_topic: {str(e)}")
                 return []
+
+    def get_all_content(self):
+        with self.driver.session() as session:
+            result = session.run("""
+                MATCH (c:Content)
+                OPTIONAL MATCH (c)-[:EXPLAINS]->(t:Topic)
+                RETURN c, collect(t.id) as related_topic_ids
+                ORDER BY c.created_at DESC
+                """)
+            
+            content_list = []
+            for record in result:
+                content = dict(record["c"])
+                content["related_topic_ids"] = record["related_topic_ids"]
+                content_list.append(content)
+            
+            return content_list
+
+    def get_content_by_subject(self, subject: str):
+        with self.driver.session() as session:
+            result = session.run("""
+                MATCH (c:Content)-[:EXPLAINS]->(t:Topic)-[:BELONGS_TO]->(s:Subject {name: $subject})
+                RETURN c, collect(t.id) as related_topic_ids
+                ORDER BY c.created_at DESC
+                """,
+                subject=subject
+            )
+            
+            content_list = []
+            for record in result:
+                content = dict(record["c"])
+                content["related_topic_ids"] = record["related_topic_ids"]
+                content_list.append(content)
+            
+            return content_list
+
+    def get_content_by_type(self, content_type: str):
+        with self.driver.session() as session:
+            result = session.run("""
+                MATCH (c:Content {type: $type})
+                OPTIONAL MATCH (c)-[:EXPLAINS]->(t:Topic)
+                RETURN c, collect(t.id) as related_topic_ids
+                ORDER BY c.created_at DESC
+                """,
+                type=content_type
+            )
+            
+            content_list = []
+            for record in result:
+                content = dict(record["c"])
+                content["related_topic_ids"] = record["related_topic_ids"]
+                content_list.append(content)
+            
+            return content_list
+
+    def search_content(self, query: str):
+        with self.driver.session() as session:
+            result = session.run("""
+                MATCH (c:Content)
+                WHERE toLower(c.title) CONTAINS toLower($query) OR toLower(c.content) CONTAINS toLower($query)
+                OPTIONAL MATCH (c)-[:EXPLAINS]->(t:Topic)
+                RETURN c, collect(t.id) as related_topic_ids
+                ORDER BY c.created_at DESC
+                """,
+                query=query
+            )
+            
+            content_list = []
+            for record in result:
+                content = dict(record["c"])
+                content["related_topic_ids"] = record["related_topic_ids"]
+                content_list.append(content)
+            
+            return content_list
