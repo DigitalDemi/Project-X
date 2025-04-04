@@ -257,7 +257,7 @@ class Neo4jConnection:
             except Exception as e:
                 print(f"Database error in get_full_graph: {str(e)}")
                 raise Exception(f"Failed to retrieve graph: {str(e)}")
-        def create_task(self, task_data: dict):
+    def create_task(self, task_data: dict):
             with self.driver.session() as session:
                 result = session.run("""
                     CREATE (t:Task {
@@ -281,46 +281,90 @@ class Neo4jConnection:
                 )
                 return result.single()
 
-        def create_calendar_event(self, event_data: dict):
-            with self.driver.session() as session:
-                result = session.run("""
-                    CREATE (e:Event {
-                        id: $id,
-                        title: $title,
-                        start_time: $start_time,
-                        end_time: $end_time,
-                        type: $type,
-                        description: $description
-                    })
-                    RETURN e
-                    """,
-                    id=event_data['id'],
-                    title=event_data['title'],
-                    start_time=event_data['start_time'].isoformat(),
-                    end_time=event_data['end_time'].isoformat(),
-                    type=event_data['type'],
-                    description=event_data.get('description', None)
-                )
-                return result.single()
+    def create_calendar_event(self, event_data: dict):
+        with self.driver.session() as session:
+            result = session.run("""
+                CREATE (e:Event {
+                    id: $id,
+                    title: $title,
+                    start_time: $start_time,
+                    end_time: $end_time,
+                    type: $type,
+                    description: $description
+                })
+                RETURN e
+                """,
+                id=event_data['id'],
+                title=event_data['title'],
+                start_time=event_data['start_time'].isoformat(),
+                end_time=event_data['end_time'].isoformat(),
+                type=event_data['type'],
+                description=event_data.get('description', None)
+            )
+            return result.single()
 
-        def get_tasks(self):
-            with self.driver.session() as session:
-                result = session.run("""
-                    MATCH (t:Task)
-                    RETURN t
-                    ORDER BY t.created_at DESC
-                    """)
-                return [dict(record["t"]) for record in result]
+    def get_tasks(self):
+        with self.driver.session() as session:
+            result = session.run("""
+                MATCH (t:Task)
+                RETURN t
+                ORDER BY t.created_at DESC
+                """)
+            return [dict(record["t"]) for record in result]
 
-        def get_calendar_events(self, start_date: datetime, end_date: datetime):
-            with self.driver.session() as session:
+    def get_calendar_events(self, start_date: datetime, end_date: datetime):
+        with self.driver.session() as session:
+            result = session.run("""
+                MATCH (e:Event)
+                WHERE datetime($start) <= datetime(e.start_time) <= datetime($end)
+                RETURN e
+                ORDER BY e.start_time
+                """,
+                start=start_date.isoformat(),
+                end=end_date.isoformat()
+            )
+            return [dict(record["e"]) for record in result]
+
+    def create_content_node(self, content_data):
+        with self.driver.session() as session:
+            result = session.run("""
+                CREATE (c:Content {
+                    id: $id,
+                    title: $title,
+                    type: $type,
+                    content: $content,
+                    created_at: $created_at
+                })
+                RETURN c
+                """,
+                id=content_data['id'],
+                title=content_data['title'],
+                type=content_data['type'],
+                content=content_data['content'],
+                created_at=content_data['created_at'].isoformat()
+            )
+            return result.single()
+
+    def create_content_relationship(self, content_id, topic_id, relationship_type="EXPLAINS"):
+        with self.driver.session() as session:
+            session.run("""
+                MATCH (c:Content {id: $content_id})
+                MATCH (t:Topic {id: $topic_id})
+                MERGE (c)-[r:%s]->(t)
+                """ % relationship_type,
+                content_id=content_id,
+                topic_id=topic_id
+            )
+    def get_content_by_topic(self, topic_id):
+        with self.driver.session() as session:
+            try:
                 result = session.run("""
-                    MATCH (e:Event)
-                    WHERE datetime($start) <= datetime(e.start_time) <= datetime($end)
-                    RETURN e
-                    ORDER BY e.start_time
+                    MATCH (c:Content)-[:EXPLAINS]->(t:Topic {id: $topic_id})
+                    RETURN c
                     """,
-                    start=start_date.isoformat(),
-                    end=end_date.isoformat()
+                    topic_id=topic_id
                 )
-                return [dict(record["e"]) for record in result]
+                return [dict(record["c"]) for record in result]
+            except Exception as e:
+                print(f"Database error in get_content_by_topic: {str(e)}")
+                return []

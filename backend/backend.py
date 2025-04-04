@@ -6,6 +6,14 @@ from datetime import datetime, timedelta
 import json
 from database import Neo4jConnection
 
+
+class ContentCreate(BaseModel):
+    title: str
+    type: str  # "article", "guide", "quiz", etc.
+    content: str
+    related_topics: List[str] = []
+
+
 app = FastAPI()
 
 app.add_middleware(
@@ -225,6 +233,37 @@ def _increase_stage(current_stage):
     stages = ['first_time', 'early_stage', 'mid_stage', 'late_stage', 'mastered']
     current_idx = stages.index(current_stage)
     return stages[min(len(stages) - 1, current_idx + 1)]
+
+@app.post("/content/")
+async def create_content(content: ContentCreate):
+    content_id = f"content:{uuid.uuid4()}"
+    content_data = {
+        "id": content_id,
+        "title": content.title,
+        "type": content.type,
+        "content": content.content,
+        "created_at": datetime.now()
+    }
+    
+    db.create_content_node(content_data)
+    
+    # Create relationships to topics
+    for topic_id in content.related_topics:
+        db.create_content_relationship(content_id, topic_id)
+    
+    return {"content_id": content_id, "status": "created"}
+
+@app.get("/content/{content_id}")
+async def get_content(content_id: str):
+    content = db.get_content(content_id)
+    if not content:
+        raise HTTPException(status_code=404, detail="Content not found")
+    return content
+
+@app.get("/content/by-topic/{topic_id}")
+async def get_content_by_topic(topic_id: str):
+    content_list = db.get_content_by_topic(topic_id)
+    return content_list
 
 @app.on_event("shutdown")
 async def shutdown_event():

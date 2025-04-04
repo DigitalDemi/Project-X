@@ -8,6 +8,7 @@ import 'services/sync_service.dart';
 import 'services/task_service.dart';
 import 'services/topic_service.dart';
 import 'services/profile_service.dart';
+import 'services/content_service.dart';
 import 'ui/navigation/shared/body.dart';
 
 void main() async {
@@ -43,6 +44,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => topicService),
         ChangeNotifierProvider(create: (_) => calendarService),
         ChangeNotifierProvider(create: (_) => learningService), // Add learning service
+        ChangeNotifierProvider(create: (_) => ContentService()), // Add this line
+
       ],
       child: const MyApp(), // This is fine since MyApp is already defined
     ),
