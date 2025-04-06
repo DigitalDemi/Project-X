@@ -1,4 +1,4 @@
-// lib/ui/navigation/shared/body.dart
+// Update for lib/ui/navigation/shared/body.dart
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/calender/calendar_view.dart';
 import 'package:frontend/ui/navigation/shared/bottom_navigation.dart';
@@ -6,7 +6,7 @@ import 'package:frontend/ui/navigation/shared/top_bar.dart';
 import 'package:frontend/ui/self_regulation/self_regulation_page.dart';
 import 'package:frontend/ui/tasks/task_card.dart';
 import 'package:frontend/ui/tasks/task_list.dart';
-import 'package:frontend/ui/pages/learning_dashboard.dart';
+import 'package:frontend/ui/learning/learning_module_navigator.dart'; // New import
 import 'package:frontend/ui/pages/modules_view.dart';
 import 'package:frontend/ui/content/learning_resources_page.dart';
 
@@ -45,9 +45,9 @@ class _BodyState extends State<Body> {
           ),
         );
       case 1:
-        return const LearningDashboard();
+        return const LearningModuleNavigator(); // Replace the Learning Dashboard with our new navigator
       case 2:
-        return const LearningResourcesPage(); // New page for resources
+        return const LearningResourcesPage();
       case 3:
         return const SelfRegulationPage();
       case 4:
