@@ -1,6 +1,7 @@
 // Update for lib/ui/navigation/shared/body.dart
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/calender/calendar_view.dart';
+import 'package:frontend/ui/learning/learning_module_home.dart';
 import 'package:frontend/ui/navigation/shared/bottom_navigation.dart';
 import 'package:frontend/ui/navigation/shared/top_bar.dart';
 import 'package:frontend/ui/self_regulation/self_regulation_page.dart';
@@ -45,7 +46,7 @@ class _BodyState extends State<Body> {
           ),
         );
       case 1:
-        return const LearningModuleNavigator(); // Replace the Learning Dashboard with our new navigator
+        return const LearningModuleHome(); // Replace the Learning Dashboard with our new navigator
       case 2:
         return const LearningResourcesPage();
       case 3:

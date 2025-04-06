@@ -61,11 +61,6 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation> {
             activeIcon: Icon(Icons.psychology),
             label: 'Self-Regulation',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.grid_view_outlined),
-            activeIcon: Icon(Icons.grid_view),
-            label: 'Modules',
-          ),
         ],
       ),
     );
