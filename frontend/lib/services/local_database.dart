@@ -4,7 +4,7 @@ import 'package:path/path.dart';
 
 class LocalDatabase {
   static Database? _database;
-  
+
   Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDB();
@@ -103,5 +103,72 @@ class LocalDatabase {
         last_modified TEXT
       )
     ''');
+
+    await db.execute('''
+    CREATE TABLE energy_levels (
+      id TEXT PRIMARY KEY,
+      timestamp TEXT,
+      level INTEGER,
+      notes TEXT,
+      factors TEXT,
+      sync_status TEXT,
+      last_modified TEXT
+    )
+  ''');
+  // Focus sessions table
+  await db.execute('''
+    CREATE TABLE focus_sessions (
+      id TEXT PRIMARY KEY,
+      start_time TEXT,
+      end_time TEXT,
+      duration_minutes INTEGER,
+      topic TEXT,
+      distractions TEXT,
+      focus_rating INTEGER,
+      is_completed INTEGER,
+      sync_status TEXT,
+      last_modified TEXT
+    )
+  ''');
+  await db.execute('''
+    CREATE TABLE habits (
+      id TEXT PRIMARY KEY,
+      title TEXT,
+      description TEXT,
+      current_streak INTEGER,
+      longest_streak INTEGER,
+      created_at TEXT,
+      completion_dates TEXT,
+      frequency TEXT,
+      weekdays TEXT,
+      time_of_day TEXT,
+      sync_status TEXT,
+      last_modified TEXT
+    )
+  ''');
+  await db.execute('''
+    CREATE TABLE reflections (
+      id TEXT PRIMARY KEY,
+      date TEXT,
+      content TEXT,
+      tags TEXT,
+      mood_rating INTEGER,
+      productivity_rating INTEGER,
+      focus_area TEXT,
+      sync_status TEXT,
+      last_modified TEXT
+    )
+  ''');
+  await db.execute('''
+    CREATE TABLE mood_entries (
+      id TEXT PRIMARY KEY,
+      timestamp TEXT,
+      rating INTEGER,
+      note TEXT,
+      factors TEXT,
+      sync_status TEXT,
+      last_modified TEXT
+    )
+  ''');
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/ui/calender/calendar_view.dart';
 import 'package:frontend/ui/navigation/shared/bottom_navigation.dart';
 import 'package:frontend/ui/navigation/shared/top_bar.dart';
+import 'package:frontend/ui/self_regulation/self_regulation_page.dart';
 import 'package:frontend/ui/tasks/task_card.dart';
 import 'package:frontend/ui/tasks/task_list.dart';
 import 'package:frontend/ui/pages/learning_dashboard.dart';
@@ -48,6 +49,8 @@ class _BodyState extends State<Body> {
       case 2:
         return const LearningResourcesPage(); // New page for resources
       case 3:
+        return const SelfRegulationPage();
+      case 4:
         return const ModulesView();
       default:
         return const SizedBox.shrink();

@@ -55,6 +55,13 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation> {
             label: 'Resources',
           ),
           BottomNavigationBarItem(
+            icon: Icon(
+              Icons.psychology_outlined,
+            ), // New icon for Self-Regulation
+            activeIcon: Icon(Icons.psychology),
+            label: 'Self-Regulation',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.grid_view_outlined),
             activeIcon: Icon(Icons.grid_view),
             label: 'Modules',

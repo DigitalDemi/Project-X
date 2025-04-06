@@ -24,6 +24,7 @@ class IcsService {
     }
   }
 
+  // lib/services/ics_service.dart
   DateTime _convertToDateTime(dynamic date) {
     if (date is DateTime) {
       return date;
@@ -34,13 +35,38 @@ class IcsService {
       try {
         final dt = date.dt;
 
-        // Parse the date string
-        final year = int.parse(dt.substring(0, 4));
-        final month = int.parse(dt.substring(4, 6));
-        final day = int.parse(dt.substring(6, 8));
-        final hour = int.parse(dt.substring(9, 11));
-        final minute = int.parse(dt.substring(11, 13));
-        final second = dt.length > 13 ? int.parse(dt.substring(13, 15)) : 0;
+        if (dt.length < 8) {
+          _logger.warning('Invalid IcsDateTime format: $date');
+          return DateTime.now();
+        }
+
+        // Parse the date string with better error handling
+        int year, month, day, hour = 0, minute = 0, second = 0;
+
+        try {
+          year = int.parse(dt.substring(0, 4));
+          month = int.parse(dt.substring(4, 6));
+          day = int.parse(dt.substring(6, 8));
+
+          // Only try to parse time if it's present
+          if (dt.length > 9 && dt.contains('T')) {
+            final timeStart = dt.indexOf('T') + 1;
+            if (dt.length >= timeStart + 2) {
+              hour = int.parse(dt.substring(timeStart, timeStart + 2));
+            }
+            if (dt.length >= timeStart + 4) {
+              minute = int.parse(dt.substring(timeStart + 2, timeStart + 4));
+            }
+            if (dt.length >= timeStart + 6) {
+              second = int.parse(dt.substring(timeStart + 4, timeStart + 6));
+            }
+          }
+        } catch (e) {
+          _logger.warning(
+            'Error parsing IcsDateTime components: $e\nDate data: $date',
+          );
+          return DateTime.now();
+        }
 
         // Handle UTC ('Z' suffix)
         if (dt.endsWith('Z')) {
@@ -67,28 +93,29 @@ class IcsService {
     if (url == null) return [];
 
     try {
-      final response = await http.get(Uri.parse(url))
+      final response = await http
+          .get(Uri.parse(url))
           .timeout(const Duration(seconds: 10));
-          
+
       if (response.statusCode != 200) {
         _logger.warning('Failed to fetch ICS file: ${response.statusCode}');
         throw Exception('Failed to fetch ICS file (${response.statusCode})');
       }
 
       final icsData = response.body;
-      
+
       if (!icsData.toUpperCase().contains('BEGIN:VCALENDAR')) {
         _logger.severe('Invalid ICS format: not a calendar file');
-        
-        if (icsData.contains('doctype html') || 
+
+        if (icsData.contains('doctype html') ||
             icsData.contains('accounts.google.com')) {
           throw Exception(
             'Received login page instead of calendar data. '
             'Make sure you\'re using the "Secret address in iCal format" '
-            'from Google Calendar settings.'
+            'from Google Calendar settings.',
           );
         }
-        
+
         throw Exception('Invalid calendar format');
       }
 
@@ -100,25 +127,30 @@ class IcsService {
           try {
             final dynamic startDt = event['dtstart'];
             final dynamic endDt = event['dtend'];
-            
+
             if (startDt != null) {
               final DateTime start = _convertToDateTime(startDt);
-              final DateTime end = endDt != null 
-                  ? _convertToDateTime(endDt)
-                  : start.add(const Duration(hours: 1));
+              final DateTime end =
+                  endDt != null
+                      ? _convertToDateTime(endDt)
+                      : start.add(const Duration(hours: 1));
 
-              events.add(CalendarEvent(
-                id: event['uid'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
-                title: event['summary'] ?? 'Untitled Event',
-                startTime: start,
-                endTime: end,
-                description: event['description']?.toString(),
-                source: EventSource.icsFile,
-              ));
+              events.add(
+                CalendarEvent(
+                  id:
+                      event['uid'] ??
+                      DateTime.now().millisecondsSinceEpoch.toString(),
+                  title: event['summary'] ?? 'Untitled Event',
+                  startTime: start,
+                  endTime: end,
+                  description: event['description']?.toString(),
+                  source: EventSource.icsFile,
+                ),
+              );
             }
           } catch (e, stackTrace) {
             _logger.warning(
-              'Error parsing ICS event: $e\nEvent data: ${event.toString()}\n$stackTrace'
+              'Error parsing ICS event: $e\nEvent data: ${event.toString()}\n$stackTrace',
             );
             continue;
           }
@@ -127,10 +159,9 @@ class IcsService {
 
       // Sort events by start time
       events.sort((a, b) => a.startTime.compareTo(b.startTime));
-      
+
       _logger.info('Successfully parsed ${events.length} events');
       return events;
-      
     } catch (e, stackTrace) {
       _logger.severe('Error fetching ICS events: $e\n$stackTrace');
       rethrow;
@@ -143,8 +174,7 @@ class IcsService {
     final cutoff = now.add(Duration(days: daysAhead));
 
     return events.where((event) {
-      return event.startTime.isAfter(now) && 
-             event.startTime.isBefore(cutoff);
+      return event.startTime.isAfter(now) && event.startTime.isBefore(cutoff);
     }).toList();
   }
 
@@ -152,8 +182,8 @@ class IcsService {
     final events = await fetchAndParseIcsEvents();
     return events.where((event) {
       return event.startTime.year == date.year &&
-             event.startTime.month == date.month &&
-             event.startTime.day == date.day;
+          event.startTime.month == date.month &&
+          event.startTime.day == date.day;
     }).toList();
   }
 

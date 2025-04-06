@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/services/calender_service.dart';
+import 'package:frontend/services/energy_service.dart';
+import 'package:frontend/services/focus_session_service.dart';
+import 'package:frontend/services/habit_service.dart';
 import 'package:frontend/services/learning_service.dart';
+import 'package:frontend/services/mood_service.dart';
+import 'package:frontend/services/reflection_service.dart';
 import 'package:provider/provider.dart';
 import 'services/local_database.dart';
 import 'services/api_service.dart';
@@ -34,7 +39,13 @@ void main() async {
   final topicService = TopicService(syncService);
   final calendarService = CalendarService(database);
   final profileService = ProfileService();
-  final learningService = LearningService(); // Initialize the new service
+  final learningService = LearningService(); 
+
+  final energyService = EnergyService(syncService);
+  final focusSessionService = FocusSessionService(syncService);
+  final habitService = HabitService(syncService);
+  final reflectionService = ReflectionService(syncService);
+  final moodService = MoodService(syncService);
 
   runApp(
     MultiProvider(
@@ -45,6 +56,12 @@ void main() async {
         ChangeNotifierProvider(create: (_) => calendarService),
         ChangeNotifierProvider(create: (_) => learningService), // Add learning service
         ChangeNotifierProvider(create: (_) => ContentService()), // Add this line
+
+        ChangeNotifierProvider(create: (_) => energyService),
+        ChangeNotifierProvider(create: (_) => focusSessionService),
+        ChangeNotifierProvider(create: (_) => habitService),
+        ChangeNotifierProvider(create: (_) => reflectionService),
+        ChangeNotifierProvider(create: (_) => moodService),
 
       ],
       child: const MyApp(), // This is fine since MyApp is already defined
