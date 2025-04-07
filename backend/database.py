@@ -442,3 +442,38 @@ class Neo4jConnection:
                 content_list.append(content)
             
             return content_list
+    def create_study_session(self, session_data):
+        """Create a study session node and relationships to topics"""
+        with self.driver.session() as session:
+            # Create session node
+            result = session.run("""
+                CREATE (s:StudySession {
+                    id: $id,
+                    start_time: $start_time,
+                    end_time: $end_time,
+                    created_at: $created_at
+                })
+                RETURN s
+                """,
+                id=session_data['id'],
+                start_time=session_data['start_time'],
+                end_time=session_data['end_time'],
+                created_at=session_data['created_at']
+            )
+            
+            session_id = session_data['id']
+            
+            # Create relationships to topics with durations
+            for i, topic_id in enumerate(session_data['topics']):
+                duration = session_data['durations'][i]
+                session.run("""
+                    MATCH (s:StudySession {id: $session_id})
+                    MATCH (t:Topic {id: $topic_id})
+                    CREATE (s)-[r:INCLUDES {duration: $duration}]->(t)
+                    """,
+                    session_id=session_id,
+                    topic_id=topic_id,
+                    duration=duration
+                )
+            
+            return session_id

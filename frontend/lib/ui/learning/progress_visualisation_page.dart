@@ -1,22 +1,33 @@
-// lib/ui/learning/progress_visualization_page.dart
+// lib/ui/learning/progress_visualisation_page.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/services/learning_service.dart';
-import 'package:frontend/services/topic_service.dart';
 import 'package:frontend/models/topic.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:math';
+import 'package:frontend/ui/pages/add_topic_page.dart';
 
 class ProgressVisualizationPage extends StatefulWidget {
   const ProgressVisualizationPage({super.key});
 
   @override
-  State<ProgressVisualizationPage> createState() => _ProgressVisualizationPageState();
+  State<ProgressVisualizationPage> createState() =>
+      _ProgressVisualizationPageState();
 }
 
 class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
-  String _selectedView = 'overview'; // 'overview', 'subjects', 'stages', 'retention'
+  String _selectedView =
+      'overview'; // 'overview', 'subjects', 'stages', 'retention'
   String? _selectedSubject;
+
+  @override
+  void initState() {
+    super.initState();
+    // Force refresh topics when page loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<LearningService>(context, listen: false).fetchTopics();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +45,7 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
           children: [
             _buildViewSelector(),
             const SizedBox(height: 24),
-            
+
             // Selected visualization
             if (_selectedView == 'overview')
               _buildOverviewView()
@@ -73,7 +84,7 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
 
   Widget _buildViewOption(String label, String value) {
     final isSelected = _selectedView == value;
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: InkWell(
@@ -102,26 +113,61 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
   }
 
   Widget _buildOverviewView() {
-    return Consumer2<LearningService, TopicService>(
-      builder: (context, learningService, topicService, child) {
-        final topics = topicService.topics;
+    return Consumer<LearningService>(
+      builder: (context, learningService, child) {
+        final topics = learningService.topics;
         final stagesDistribution = learningService.getStagesDistribution();
-        
+
+        if (learningService.isLoading) {
+          return const Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(
+                Colors.deepPurpleAccent,
+              ),
+            ),
+          );
+        }
+
+        if (learningService.error != null) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 48, color: Colors.red[400]),
+                const SizedBox(height: 16),
+                Text(
+                  'Error: ${learningService.error}',
+                  style: TextStyle(color: Colors.red[400]),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => learningService.fetchTopics(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurpleAccent,
+                  ),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          );
+        }
+
         if (topics.isEmpty) {
           return _buildEmptyState();
         }
-        
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Summary cards
             _buildSummaryCards(topics),
             const SizedBox(height: 24),
-            
+
             // Learning curve
             _buildLearningCurveChart(topics),
             const SizedBox(height: 24),
-            
+
             // Stage distribution
             _buildStageDistributionChart(stagesDistribution),
           ],
@@ -132,13 +178,13 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
 
   Widget _buildSummaryCards(List<Topic> topics) {
     final activeTopics = topics.where((t) => t.status == 'active').toList();
-    final completedTopics = topics.where((t) => t.status == 'completed').toList();
+    final completedTopics =
+        topics.where((t) => t.status == 'completed').toList();
     final reviewHistory = topics.expand((t) => t.reviewHistory).toList();
-    
-    final avgReviews = activeTopics.isEmpty 
-        ? 0.0 
-        : reviewHistory.length / activeTopics.length;
-    
+
+    final avgReviews =
+        activeTopics.isEmpty ? 0.0 : reviewHistory.length / activeTopics.length;
+
     return Row(
       children: [
         Expanded(
@@ -180,7 +226,12 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
     );
   }
 
-  Widget _buildSummaryCard(String title, String value, IconData icon, Color color) {
+  Widget _buildSummaryCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -214,29 +265,35 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
     // Group review history by date
     final reviewsByDate = <DateTime, int>{};
     int cumulativeReviews = 0;
-    
+
     // Get all review dates
     final allDates = <DateTime>[];
     for (final topic in topics) {
       for (final review in topic.reviewHistory) {
-        allDates.add(review['date']);
+        // Convert string dates to DateTime if needed
+        final DateTime reviewDate =
+            review['date'] is String
+                ? DateTime.parse(review['date'] as String)
+                : review['date'] as DateTime;
+
+        allDates.add(reviewDate);
       }
     }
-    
+
     // Sort dates
     allDates.sort();
-    
+
     // Create cumulative data
     for (final date in allDates) {
       cumulativeReviews++;
       final key = DateTime(date.year, date.month, date.day);
       reviewsByDate[key] = (reviewsByDate[key] ?? 0) + 1;
     }
-    
+
     // Convert to list for chart
-    final chartData = reviewsByDate.entries.toList()
-      ..sort((a, b) => a.key.compareTo(b.key));
-    
+    final chartData =
+        reviewsByDate.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
+
     if (chartData.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(16),
@@ -266,7 +323,7 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
         ),
       );
     }
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -295,7 +352,8 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
                     sideTitles: SideTitles(
                       showTitles: true,
                       getTitlesWidget: (value, meta) {
-                        if (value.toInt() % max(1, (chartData.length ~/ 5)) != 0) {
+                        if (value.toInt() % max(1, (chartData.length ~/ 5)) !=
+                            0) {
                           return const SizedBox.shrink();
                         }
                         if (value.toInt() >= chartData.length) {
@@ -366,8 +424,11 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
   }
 
   Widget _buildStageDistributionChart(Map<String, int> stagesDistribution) {
-    final total = stagesDistribution.values.fold(0, (sum, count) => sum + count);
-    
+    final total = stagesDistribution.values.fold(
+      0,
+      (sum, count) => sum + count,
+    );
+
     if (total == 0) {
       return Container(
         padding: const EdgeInsets.all(16),
@@ -397,7 +458,7 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
         ),
       );
     }
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -432,7 +493,7 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
                   ),
                 ),
               ),
-              
+
               // Legend
               Expanded(
                 flex: 2,
@@ -443,7 +504,7 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
                       final stage = entry.key;
                       final count = entry.value;
                       final percentage = total > 0 ? (count / total * 100) : 0;
-                      
+
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: Row(
@@ -488,10 +549,15 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
     );
   }
 
-  List<PieChartSectionData> _createPieSections(Map<String, int> stagesDistribution) {
-    final total = stagesDistribution.values.fold(0, (sum, count) => sum + count);
+  List<PieChartSectionData> _createPieSections(
+    Map<String, int> stagesDistribution,
+  ) {
+    final total = stagesDistribution.values.fold(
+      0,
+      (sum, count) => sum + count,
+    );
     final sections = <PieChartSectionData>[];
-    
+
     if (total == 0) {
       sections.add(
         PieChartSectionData(
@@ -503,10 +569,10 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
       );
       return sections;
     }
-    
+
     stagesDistribution.forEach((stage, count) {
       final percentage = (count / total * 100);
-      
+
       sections.add(
         PieChartSectionData(
           color: _getStageColor(stage),
@@ -521,19 +587,19 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
         ),
       );
     });
-    
+
     return sections;
   }
 
   Widget _buildSubjectsView() {
-    return Consumer<TopicService>(
-      builder: (context, topicService, child) {
-        final topics = topicService.topics;
-        
+    return Consumer<LearningService>(
+      builder: (context, learningService, child) {
+        final topics = learningService.topics;
+
         if (topics.isEmpty) {
           return _buildEmptyState();
         }
-        
+
         // Group topics by subject
         final subjects = <String>{};
         for (final topic in topics) {
@@ -541,7 +607,7 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
             subjects.add(topic.subject);
           }
         }
-        
+
         if (subjects.isEmpty) {
           return Center(
             child: Text(
@@ -550,11 +616,11 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
             ),
           );
         }
-        
+
         // Subject selector
         final subjectsList = subjects.toList()..sort();
         _selectedSubject ??= subjectsList.first;
-        
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -580,33 +646,34 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      children: subjectsList.map((subject) {
-                        final isSelected = _selectedSubject == subject;
-                        
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: ChoiceChip(
-                            label: Text(subject),
-                            selected: isSelected,
-                            onSelected: (selected) {
-                              if (selected) {
-                                setState(() {
-                                  _selectedSubject = subject;
-                                });
-                              }
-                            },
-                            backgroundColor: Colors.grey[800],
-                            selectedColor: Colors.deepPurpleAccent,
-                          ),
-                        );
-                      }).toList(),
+                      children:
+                          subjectsList.map((subject) {
+                            final isSelected = _selectedSubject == subject;
+
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: ChoiceChip(
+                                label: Text(subject),
+                                selected: isSelected,
+                                onSelected: (selected) {
+                                  if (selected) {
+                                    setState(() {
+                                      _selectedSubject = subject;
+                                    });
+                                  }
+                                },
+                                backgroundColor: Colors.grey[800],
+                                selectedColor: Colors.deepPurpleAccent,
+                              ),
+                            );
+                          }).toList(),
                     ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // Subject progress
             if (_selectedSubject != null)
               _buildSubjectProgress(topics, _selectedSubject!),
@@ -617,9 +684,11 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
   }
 
   Widget _buildSubjectProgress(List<Topic> allTopics, String subject) {
-    final subjectTopics = allTopics.where((t) => 
-      t.subject == subject && t.status == 'active').toList();
-      
+    final subjectTopics =
+        allTopics
+            .where((t) => t.subject == subject && t.status == 'active')
+            .toList();
+
     if (subjectTopics.isEmpty) {
       return Center(
         child: Text(
@@ -628,7 +697,7 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
         ),
       );
     }
-    
+
     // Group by stage
     final Map<String, int> stageCount = {
       'first_time': 0,
@@ -637,11 +706,11 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
       'late_stage': 0,
       'mastered': 0,
     };
-    
+
     for (final topic in subjectTopics) {
       stageCount[topic.stage] = (stageCount[topic.stage] ?? 0) + 1;
     }
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -676,7 +745,8 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
                   Expanded(
                     child: _buildStatItem(
                       'Advanced',
-                      (stageCount['late_stage']! + stageCount['mastered']!).toString(),
+                      (stageCount['late_stage']! + stageCount['mastered']!)
+                          .toString(),
                       Icons.trending_up,
                     ),
                   ),
@@ -693,7 +763,7 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
           ),
         ),
         const SizedBox(height: 24),
-        
+
         // Stage progress bars
         Container(
           padding: const EdgeInsets.all(16),
@@ -726,7 +796,7 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
           ),
         ),
         const SizedBox(height: 24),
-        
+
         // Topics list
         Container(
           padding: const EdgeInsets.all(16),
@@ -798,7 +868,10 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.deepPurpleAccent.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(12),
@@ -853,17 +926,14 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
     final total = stageCount.values.fold(0, (sum, count) => sum + count);
     final count = stageCount[stage] ?? 0;
     final percentage = total > 0 ? count / total : 0.0;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              label,
-              style: const TextStyle(color: Colors.white),
-            ),
+            Text(label, style: const TextStyle(color: Colors.white)),
             Text(
               '$count topics',
               style: TextStyle(color: Colors.grey[400], fontSize: 12),
@@ -899,14 +969,14 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
   }
 
   Widget _buildStagesView() {
-    return Consumer<TopicService>(
-      builder: (context, topicService, child) {
-        final topics = topicService.topics;
-        
+    return Consumer<LearningService>(
+      builder: (context, learningService, child) {
+        final topics = learningService.topics;
+
         if (topics.isEmpty) {
           return _buildEmptyState();
         }
-        
+
         // Group active topics by stage
         final Map<String, List<Topic>> topicsByStage = {
           'first_time': [],
@@ -915,20 +985,20 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
           'late_stage': [],
           'mastered': [],
         };
-        
+
         for (final topic in topics) {
           if (topic.status == 'active') {
             topicsByStage[topic.stage]?.add(topic);
           }
         }
-        
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Stage cards
             _buildStageCards(topicsByStage),
             const SizedBox(height: 24),
-            
+
             // Stage details
             _buildStageDetails(topicsByStage),
           ],
@@ -960,7 +1030,7 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
     Map<String, List<Topic>> topicsByStage,
   ) {
     final topics = topicsByStage[stage] ?? [];
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1024,14 +1094,14 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
           ),
         ),
         const SizedBox(height: 16),
-        
+
         // One section per stage
         ...topicsByStage.entries.map((entry) {
           final stage = entry.key;
           final topics = entry.value;
-          
+
           if (topics.isEmpty) return const SizedBox.shrink();
-          
+
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1061,7 +1131,7 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
                 ],
               ),
               const SizedBox(height: 8),
-              
+
               // Topic list for this stage
               Container(
                 margin: const EdgeInsets.only(left: 20, bottom: 16),
@@ -1074,37 +1144,43 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
                   ),
                 ),
                 child: Column(
-                  children: topics.take(3).map((topic) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  topic.name,
-                                  style: const TextStyle(color: Colors.white),
+                  children:
+                      topics.take(3).map((topic) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      topic.name,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    Text(
+                                      topic.subject,
+                                      style: TextStyle(
+                                        color: Colors.grey[400],
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                Text(
-                                  topic.subject,
-                                  style: TextStyle(
-                                    color: Colors.grey[400],
-                                    fontSize: 12,
-                                  ),
+                              ),
+                              Text(
+                                '${topic.reviewHistory.length} reviews',
+                                style: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontSize: 12,
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                          Text(
-                            '${topic.reviewHistory.length} reviews',
-                            style: TextStyle(color: Colors.grey[400], fontSize: 12),
-                          ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
+                        );
+                      }).toList(),
                 ),
               ),
             ],
@@ -1115,28 +1191,28 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
   }
 
   Widget _buildRetentionView() {
-    return Consumer<TopicService>(
-      builder: (context, topicService, child) {
-        final topics = topicService.topics;
-        
+    return Consumer<LearningService>(
+      builder: (context, learningService, child) {
+        final topics = learningService.topics;
+
         if (topics.isEmpty) {
           return _buildEmptyState();
         }
-        
+
         // Calculate retention metrics
         final retentionData = _calculateRetentionMetrics(topics);
-        
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Retention metrics
             _buildRetentionMetricsCards(retentionData),
             const SizedBox(height: 24),
-            
+
             // Difficulty distribution
             _buildDifficultyDistributionChart(retentionData),
             const SizedBox(height: 24),
-            
+
             // Interval progression
             _buildIntervalProgressionChart(topics),
           ],
@@ -1150,21 +1226,25 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
     int easyReviews = 0;
     int normalReviews = 0;
     int hardReviews = 0;
-    
+
     final difficultyByDate = <DateTime, Map<String, int>>{};
     final Map<String, List<int>> intervalsByDifficulty = {
       'easy': [],
       'normal': [],
       'hard': [],
     };
-    
+
     for (final topic in topics) {
       for (final review in topic.reviewHistory) {
         totalReviews++;
         final difficulty = review['difficulty'] as String;
         final interval = review['interval'] as int;
-        final date = review['date'] as DateTime;
-        
+
+        final DateTime date =
+            review['date'] is String
+                ? DateTime.parse(review['date'] as String)
+                : review['date'] as DateTime;
+
         // Count by difficulty
         if (difficulty == 'easy') {
           easyReviews++;
@@ -1173,36 +1253,48 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
         } else if (difficulty == 'hard') {
           hardReviews++;
         }
-        
+
         // Store intervals by difficulty
         intervalsByDifficulty[difficulty]?.add(interval);
-        
+
         // Store difficulty by date
         final dateKey = DateTime(date.year, date.month, date.day);
         if (!difficultyByDate.containsKey(dateKey)) {
           difficultyByDate[dateKey] = {'easy': 0, 'normal': 0, 'hard': 0};
         }
-        difficultyByDate[dateKey]![difficulty] = 
+        difficultyByDate[dateKey]![difficulty] =
             (difficultyByDate[dateKey]![difficulty] ?? 0) + 1;
       }
     }
-    
+
     // Calculate average intervals
-    final double avgEasyInterval = intervalsByDifficulty['easy']!.isEmpty
-        ? 0
-        : intervalsByDifficulty['easy']!.fold(0, (sum, interval) => sum + interval) / 
-          intervalsByDifficulty['easy']!.length;
-          
-    final double avgNormalInterval = intervalsByDifficulty['normal']!.isEmpty
-        ? 0
-        : intervalsByDifficulty['normal']!.fold(0, (sum, interval) => sum + interval) / 
-          intervalsByDifficulty['normal']!.length;
-          
-    final double avgHardInterval = intervalsByDifficulty['hard']!.isEmpty
-        ? 0
-        : intervalsByDifficulty['hard']!.fold(0, (sum, interval) => sum + interval) / 
-          intervalsByDifficulty['hard']!.length;
-    
+    final double avgEasyInterval =
+        intervalsByDifficulty['easy']!.isEmpty
+            ? 0
+            : intervalsByDifficulty['easy']!.fold(
+                  0,
+                  (sum, interval) => sum + interval,
+                ) /
+                intervalsByDifficulty['easy']!.length;
+
+    final double avgNormalInterval =
+        intervalsByDifficulty['normal']!.isEmpty
+            ? 0
+            : intervalsByDifficulty['normal']!.fold(
+                  0,
+                  (sum, interval) => sum + interval,
+                ) /
+                intervalsByDifficulty['normal']!.length;
+
+    final double avgHardInterval =
+        intervalsByDifficulty['hard']!.isEmpty
+            ? 0
+            : intervalsByDifficulty['hard']!.fold(
+                  0,
+                  (sum, interval) => sum + interval,
+                ) /
+                intervalsByDifficulty['hard']!.length;
+
     return {
       'totalReviews': totalReviews,
       'easyReviews': easyReviews,
@@ -1310,7 +1402,7 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
     final easyReviews = retentionData['easyReviews'] as int;
     final normalReviews = retentionData['normalReviews'] as int;
     final hardReviews = retentionData['hardReviews'] as int;
-    
+
     if (totalReviews == 0) {
       return Container(
         padding: const EdgeInsets.all(16),
@@ -1340,7 +1432,7 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
         ),
       );
     }
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1497,7 +1589,7 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
     Color color,
   ) {
     final percentage = total > 0 ? (count / total * 100) : 0;
-    
+
     return Column(
       children: [
         Text(
@@ -1509,27 +1601,29 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(color: Colors.grey[400], fontSize: 12),
-        ),
+        Text(label, style: TextStyle(color: Colors.grey[400], fontSize: 12)),
       ],
     );
   }
 
- Widget _buildIntervalProgressionChart(List<Topic> topics) {
+  Widget _buildIntervalProgressionChart(List<Topic> topics) {
     // Extract interval data from reviews
     final data = <MapEntry<DateTime, int>>[];
-    
+
     for (final topic in topics) {
       for (final review in topic.reviewHistory) {
-        final date = review['date'] as DateTime;
+        // Convert string dates to DateTime if needed
+        final DateTime date =
+            review['date'] is String
+                ? DateTime.parse(review['date'] as String)
+                : review['date'] as DateTime;
+
         final interval = review['interval'] as int;
         data.add(MapEntry(date, interval));
       }
     }
-    
-    if (data .isEmpty) {
+
+    if (data.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -1558,10 +1652,10 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
         ),
       );
     }
-    
+
     // Sort by date
     data.sort((a, b) => a.key.compareTo(b.key));
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1606,10 +1700,11 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
                       showTitles: true,
                       getTitlesWidget: (value, meta) {
                         final index = value.toInt();
-                        if (index >= data.length || index % (data.length ~/ 5 + 1) != 0) {
+                        if (index >= data.length ||
+                            index % (data.length ~/ 5 + 1) != 0) {
                           return const SizedBox.shrink();
                         }
-                        
+
                         final date = data[index].key;
                         return Padding(
                           padding: const EdgeInsets.only(top: 8.0),
@@ -1681,6 +1776,25 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
           Text(
             'Add topics in the Learning Dashboard',
             style: TextStyle(color: Colors.grey[400]),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AddTopicPage()),
+              ).then(
+                (_) =>
+                    Provider.of<LearningService>(
+                      context,
+                      listen: false,
+                    ).fetchTopics(),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.deepPurpleAccent,
+            ),
+            child: const Text('Add Your First Topic'),
           ),
         ],
       ),

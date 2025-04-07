@@ -39,7 +39,6 @@ void main() async {
   final topicService = TopicService(syncService);
   final calendarService = CalendarService(database);
   final profileService = ProfileService();
-  final learningService = LearningService(); 
 
   final energyService = EnergyService(syncService);
   final focusSessionService = FocusSessionService(syncService);
@@ -54,7 +53,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => taskService),
         ChangeNotifierProvider(create: (_) => topicService),
         ChangeNotifierProvider(create: (_) => calendarService),
-        ChangeNotifierProvider(create: (_) => learningService), // Add learning service
+        ChangeNotifierProvider(create: (_) => LearningService()),
         ChangeNotifierProvider(create: (_) => ContentService()), // Add this line
 
         ChangeNotifierProvider(create: (_) => energyService),

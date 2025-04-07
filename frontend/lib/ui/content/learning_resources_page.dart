@@ -13,7 +13,8 @@ class LearningResourcesPage extends StatefulWidget {
   State<LearningResourcesPage> createState() => _LearningResourcesPageState();
 }
 
-class _LearningResourcesPageState extends State<LearningResourcesPage> with SingleTickerProviderStateMixin {
+class _LearningResourcesPageState extends State<LearningResourcesPage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
@@ -22,7 +23,7 @@ class _LearningResourcesPageState extends State<LearningResourcesPage> with Sing
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    
+
     // Fetch all content when the page loads
     final contentService = Provider.of<ContentService>(context, listen: false);
     contentService.fetchAllContent();
@@ -52,13 +53,14 @@ class _LearningResourcesPageState extends State<LearningResourcesPage> with Sing
                   Provider.of<ContentService>(context, listen: false),
                 ),
               );
-              
+
               if (selectedContent != null) {
                 if (mounted) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ContentViewer(content: selectedContent),
+                      builder:
+                          (context) => ContentViewer(content: selectedContent),
                     ),
                   );
                 }
@@ -93,12 +95,18 @@ class AllResourcesTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return _buildOverviewView();
+  }
+
+  Widget _buildOverviewView() {
     return Consumer<ContentService>(
       builder: (context, contentService, child) {
         if (contentService.isLoading) {
           return const Center(
             child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurpleAccent),
+              valueColor: AlwaysStoppedAnimation<Color>(
+                Colors.deepPurpleAccent,
+              ),
             ),
           );
         }
@@ -114,6 +122,10 @@ class AllResourcesTab extends StatelessWidget {
                   'Error: ${contentService.error}',
                   style: TextStyle(color: Colors.red[400]),
                   textAlign: TextAlign.center,
+                ),
+                TextButton(
+                  onPressed: () => contentService.fetchAllContent(),
+                  child: const Text('Try Again'),
                 ),
               ],
             ),
@@ -153,19 +165,14 @@ class AllResourcesTab extends StatelessWidget {
 class ResourceCard extends StatelessWidget {
   final Content content;
 
-  const ResourceCard({
-    super.key,
-    required this.content,
-  });
+  const ResourceCard({super.key, required this.content});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       color: Colors.grey[850],
       margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: () {
           Navigator.push(
@@ -200,10 +207,7 @@ class ResourceCard extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 _getTypeDescription(content.type),
-                style: TextStyle(
-                  color: Colors.grey[400],
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Colors.grey[400], fontSize: 14),
               ),
               const SizedBox(height: 16),
               Row(
@@ -211,10 +215,7 @@ class ResourceCard extends StatelessWidget {
                 children: [
                   Text(
                     'Added: ${_formatDate(content.createdAt)}',
-                    style: TextStyle(
-                      color: Colors.grey[500],
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: Colors.grey[500], fontSize: 12),
                   ),
                   TextButton(
                     onPressed: () {
@@ -271,11 +272,7 @@ class ResourceCard extends StatelessWidget {
         color: color.withOpacity(0.2),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Icon(
-        iconData,
-        color: color,
-        size: 20,
-      ),
+      child: Icon(iconData, color: color, size: 20),
     );
   }
 
@@ -310,7 +307,7 @@ class SubjectOrganizedTab extends StatelessWidget {
 
         // Group content by subject
         final Map<String, List<Content>> contentBySubject = {};
-        
+
         for (final content in contentService.content) {
           for (final topicId in content.relatedTopicIds) {
             final parts = topicId.split(':');
@@ -339,7 +336,7 @@ class SubjectOrganizedTab extends StatelessWidget {
           itemBuilder: (context, index) {
             final subject = contentBySubject.keys.elementAt(index);
             final subjectContent = contentBySubject[subject]!;
-            
+
             return _buildSubjectSection(subject, subjectContent);
           },
         );
@@ -387,7 +384,7 @@ class TypeOrganizedTab extends StatelessWidget {
           'guide': [],
           'other': [],
         };
-        
+
         for (final content in contentService.content) {
           if (contentByType.containsKey(content.type)) {
             contentByType[content.type]!.add(content);
@@ -414,7 +411,7 @@ class TypeOrganizedTab extends StatelessWidget {
           itemBuilder: (context, index) {
             final type = contentByType.keys.elementAt(index);
             final typeContent = contentByType[type]!;
-            
+
             return _buildTypeSection(type, typeContent);
           },
         );

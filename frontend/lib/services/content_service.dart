@@ -10,7 +10,7 @@ class ContentService extends ChangeNotifier {
   List<Content> _content = [];
   bool _isLoading = false;
   String? _error;
-  
+
   // Add this to cache content by topic
   final Map<String, List<Content>> _contentByTopic = {};
 
@@ -28,9 +28,7 @@ class ContentService extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/content/'),
-      );
+      final response = await http.get(Uri.parse('$baseUrl/content/'));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -49,12 +47,8 @@ class ContentService extends ChangeNotifier {
     }
   }
 
+  // lib/services/content_service.dart
   Future<List<Content>> getContentByTopic(String topicId) async {
-    // Check if we have cached content for this topic
-    if (_contentByTopic.containsKey(topicId)) {
-      return _contentByTopic[topicId]!;
-    }
-    
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/content/by-topic/$topicId'),
@@ -62,37 +56,44 @@ class ContentService extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final contentList = (data as List).map((item) => Content.fromMap(item)).toList();
-        
+        final contentList =
+            (data as List).map((item) => Content.fromMap(item)).toList();
+
         // Cache the content
         _contentByTopic[topicId] = contentList;
-        
+
         return contentList;
       } else {
-        throw Exception('Failed to load content for topic');
+        throw Exception(
+          'Failed to load content for topic: ${response.statusCode}',
+        );
       }
     } catch (e) {
+      print('Error getting content: $e');
       throw Exception('Error getting content: $e');
     }
   }
-  
+
   // Add these new methods
-  
+
   List<Content> getContentByType(String type) {
     return _content.where((item) => item.type == type).toList();
   }
-  
+
   List<Content> searchContent(String query) {
-    return _content.where((item) => 
-      item.title.toLowerCase().contains(query.toLowerCase()) ||
-      item.content.toLowerCase().contains(query.toLowerCase())
-    ).toList();
+    return _content
+        .where(
+          (item) =>
+              item.title.toLowerCase().contains(query.toLowerCase()) ||
+              item.content.toLowerCase().contains(query.toLowerCase()),
+        )
+        .toList();
   }
-  
+
   List<String> getAvailableSubjects() {
     // Extract subjects from related topic IDs
     final Set<String> subjects = {};
-    
+
     for (final content in _content) {
       for (final topicId in content.relatedTopicIds) {
         final parts = topicId.split(':');
@@ -101,7 +102,7 @@ class ContentService extends ChangeNotifier {
         }
       }
     }
-    
+
     return subjects.toList()..sort();
   }
 }

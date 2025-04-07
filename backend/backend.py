@@ -1,3 +1,4 @@
+import uuid
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -262,13 +263,36 @@ async def get_content(content_id: str):
 
 @app.get("/content/by-topic/{topic_id}")
 async def get_content_by_topic(topic_id: str):
-    content_list = db.get_content_by_topic(topic_id)
-    return content_list
+    """Get all content related to a specific topic"""
+    try:
+        content_list = db.get_content_by_topic(topic_id)
+        return content_list
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting content: {str(e)}")
 
-@app.get("/content/")
-async def get_all_content():
-    content_list = db.get_all_content()
-    return content_list
+@app.post("/content/")
+async def create_content(content: ContentCreate):
+    """Create new learning content for topics"""
+    try:
+        content_id = f"content:{uuid.uuid4()}"
+        content_data = {
+            "id": content_id,
+            "title": content.title,
+            "type": content.type,
+            "content": content.content,
+            "created_at": datetime.now().isoformat()
+        }
+        
+        # Create content node in Neo4j
+        db.create_content_node(content_data)
+        
+        # Create relationships to topics
+        for topic_id in content.related_topics:
+            db.create_content_relationship(content_id, topic_id)
+        
+        return {"content_id": content_id, "status": "created"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error creating content: {str(e)}")
 
 @app.get("/content/by-subject/{subject}")
 async def get_content_by_subject(subject: str):
@@ -284,6 +308,24 @@ async def get_content_by_type(content_type: str):
 async def search_content(query: str):
     content_list = db.search_content(query)
     return content_list
+
+@app.post("/study-sessions/")
+async def create_study_session(session_data: dict):
+    """Record a planned study session"""
+    try:
+        # Create a study session record in the database
+        session_id = db.create_study_session({
+            "id": f"session:{uuid.uuid4()}",
+            "start_time": session_data["start_time"],
+            "end_time": session_data["end_time"],
+            "topics": session_data["topics"],
+            "durations": session_data["durations"],
+            "created_at": datetime.now().isoformat()
+        })
+        
+        return {"session_id": session_id, "status": "created"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error creating study session: {str(e)}")
 
 @app.on_event("shutdown")
 async def shutdown_event():
