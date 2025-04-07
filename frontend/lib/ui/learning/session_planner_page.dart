@@ -193,8 +193,23 @@ class _SessionPlannerPageState extends State<SessionPlannerPage> {
   Widget _buildTopicSelection() {
     return Consumer<TopicService>(
       builder: (context, topicService, child) {
-        final topics = topicService.topics;
+        var topics = topicService.topics;
+        print("TopicService topics: ${topics.length}");
 
+        // Try also accessing LearningService
+        final learningService = Provider.of<LearningService>(
+          context,
+          listen: false,
+        );
+        final learningTopics = learningService.topics;
+        print("LearningService topics: ${learningTopics.length}");
+
+        // If TopicService is empty but LearningService has data,
+        // use the LearningService data instead
+        final topicsToUse = topics.isEmpty ? learningTopics : topics;
+
+        topics = learningTopics;
+        
         if (topics.isEmpty) {
           return Center(
             child: Column(

@@ -1,8 +1,8 @@
-// lib/ui/self_regulation/pomodoro_timer.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../services/focus_session_service.dart';
+import '../../services/focus_session_service.dart'; // Service for managing sessions
+// Removed direct model import as it's not needed here
 
 class PomodoroTimerPage extends StatefulWidget {
   const PomodoroTimerPage({super.key});
@@ -12,341 +12,334 @@ class PomodoroTimerPage extends StatefulWidget {
 }
 
 class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
-  int _selectedDuration = 25; // Default Pomodoro: 25 minutes
+  // Timer State
+  int _selectedDuration = 25; // Default duration in minutes
   bool _isRunning = false;
   bool _isPaused = false;
   int _remainingSeconds = 0;
   Timer? _timer;
-  String? _currentSessionId;
+
+  // Session Data State
+  String? _currentSessionId; // ID of the currently active session
   final _topicController = TextEditingController();
-  final List<String> _distractions = [];
+  final List<String> _distractions = []; // UI list for *current* session's distractions
   final _distractionController = TextEditingController();
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _timer?.cancel(); // Clean up timer
     _topicController.dispose();
     _distractionController.dispose();
     super.dispose();
   }
 
+  // --- Timer Actions ---
+
   void _startTimer() async {
+    if (_isRunning) return; // Prevent multiple timers
+
+    // Get service instance (don't listen here, just triggering action)
     final focusService = Provider.of<FocusSessionService>(context, listen: false);
-    
-    setState(() {
-      _isRunning = true;
-      _isPaused = false;
-      _remainingSeconds = _selectedDuration * 60;
-    });
-    
-    // Create new session in database
-    _currentSessionId = await focusService.startSession(
-      durationMinutes: _selectedDuration,
-      topic: _topicController.text.isEmpty ? null : _topicController.text,
-    );
-    
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_remainingSeconds <= 0) {
-        _completeTimer();
-        return;
-      }
-      
-      if (!_isPaused) {
-        setState(() {
-          _remainingSeconds--;
-        });
-      }
-    });
+    final topic = _topicController.text.trim();
+
+    debugPrint("Attempting to start timer...");
+    try {
+      // Ask the service to start and save the session first
+      _currentSessionId = await focusService.startSession(
+        durationMinutes: _selectedDuration,
+        topic: topic.isEmpty ? null : topic,
+      );
+      debugPrint("Service started session with ID: $_currentSessionId");
+
+      // If successful, update UI state and start the countdown timer
+      setState(() {
+        _isRunning = true;
+        _isPaused = false;
+        _remainingSeconds = _selectedDuration * 60;
+        _distractions.clear(); // Clear distractions from previous session UI
+      });
+
+      _timer?.cancel(); // Ensure no old timer is running
+      _timer = Timer.periodic(const Duration(seconds: 1), _tick); // Start tick
+
+    } catch (e, stackTrace) {
+       debugPrint("!!!!!! Error starting timer session via service: $e\n$stackTrace");
+       if (mounted) { // Show error to user if widget is still visible
+           ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error starting session: ${e.toString()}')),
+           );
+       }
+    }
   }
 
+  // Called every second by the timer
+  void _tick(Timer timer) {
+     if (!_isRunning) { // Safety check: Stop if state changed
+       timer.cancel();
+       _timer = null;
+       return;
+     }
+
+     if (_isPaused) return; // Don't count down if paused
+
+     if (_remainingSeconds <= 0) { // Timer finished
+       timer.cancel();
+       _timer = null;
+       _handleTimerCompletion(); // Trigger completion logic
+       return;
+     }
+
+     // Check if widget is still mounted before updating state
+     if (mounted) {
+       setState(() {
+         _remainingSeconds--;
+       });
+     } else {
+       // Widget was removed unexpectedly, cancel timer
+       timer.cancel();
+       _timer = null;
+     }
+  }
+
+
   void _pauseTimer() {
+    if (!_isRunning || _isPaused) return;
+    debugPrint("Pausing timer.");
     setState(() {
       _isPaused = true;
     });
   }
 
   void _resumeTimer() {
+    if (!_isRunning || !_isPaused) return;
+     debugPrint("Resuming timer.");
     setState(() {
       _isPaused = false;
     });
   }
 
+  // Action for the "Stop" button - Shows confirmation dialog
   void _stopTimer() {
-    _timer?.cancel();
-    
+    if (!_isRunning) return;
+    debugPrint("Stop button pressed.");
+
+    // Show confirmation dialog
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.grey[900],
-        title: const Text('Stop Session', style: TextStyle(color: Colors.white)),
-        content: const Text(
-          'Are you sure you want to stop this focus session?',
-          style: TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('No'),
+            backgroundColor: Colors.grey[900],
+            title: const Text('Stop Session', style: TextStyle(color: Colors.white)),
+            content: const Text(
+              'Discard this focus session? It won\'t count towards your stats.',
+              style: TextStyle(color: Colors.white70),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context), // Close dialog
+                child: const Text('No'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close dialog
+                  _completeSession(wasCompleted: false); // Call completion logic with cancelled flag
+                },
+                child: const Text('Yes, Stop', style: TextStyle(color: Colors.redAccent)),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _completeSession(wasCompleted: false);
-            },
-            child: const Text('Yes'),
-          ),
-        ],
-      ),
     );
   }
 
-  void _completeTimer() {
-    _timer?.cancel();
-    
+  // Action when timer naturally reaches zero
+  void _handleTimerCompletion() {
+    debugPrint("Timer finished naturally.");
+    // Play sound/vibration etc. if desired
+
+    // Show rating dialog
     showDialog(
       context: context,
+      barrierDismissible: false, // Require rating
       builder: (context) => RatingDialog(
-        onRatingSubmitted: (rating) {
-          _completeSession(
-            wasCompleted: true,
-            focusRating: rating,
-          );
-        },
-      ),
+            onRatingSubmitted: (rating) {
+              // Call completion logic with completed flag and rating
+              _completeSession(wasCompleted: true, focusRating: rating);
+            },
+          ),
     );
   }
 
-  void _completeSession({
-    required bool wasCompleted,
-    int focusRating = 0,
-  }) {
-    if (_currentSessionId == null) return;
-    
+  // --- Session Management ---
+
+  // Central method to end the session (completed or stopped)
+  void _completeSession({required bool wasCompleted, int focusRating = 0}) {
+    debugPrint("UI completing session. wasCompleted: $wasCompleted, rating: $focusRating");
+    if (_currentSessionId == null) {
+      debugPrint("Error: _completeSession called but _currentSessionId is null.");
+      _resetTimerState(); // Reset UI anyway
+      return;
+    }
+
+    _timer?.cancel(); // Ensure timer is definitely stopped
+
+    // Get service instance to save the data
     final focusService = Provider.of<FocusSessionService>(context, listen: false);
-    
+
+    // Create an immutable copy of distractions before passing
+    final distractionsToSave = _distractions.isEmpty ? null : List<String>.unmodifiable(_distractions);
+
+    // Call the service to update the session state in the database
     focusService.completeSession(
-      _currentSessionId!,
+      id: _currentSessionId!,
       focusRating: focusRating,
-      distractions: _distractions.isEmpty ? null : _distractions,
-    );
-    
-    setState(() {
-      _isRunning = false;
-      _isPaused = false;
-      _remainingSeconds = 0;
-      _currentSessionId = null;
-      _distractions.clear();
+      distractions: distractionsToSave,
+      wasCompleted: wasCompleted, // Pass the correct flag
+    ).catchError((e, stackTrace) {
+       // Handle potential errors from the service/database layer
+       debugPrint("!!!!!! Error during focusService.completeSession call: $e\n$stackTrace");
+        if (mounted) {
+           ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error saving session: ${e.toString()}')),
+           );
+       }
+    }).whenComplete(() {
+       // Always reset the UI state after attempting completion
+       _resetTimerState();
     });
   }
 
-  void _addDistraction() {
-    if (_distractionController.text.isEmpty) return;
-    
-    setState(() {
-      _distractions.add(_distractionController.text);
-      _distractionController.clear();
-    });
+  // Resets timer UI state variables
+  void _resetTimerState() {
+     debugPrint("Resetting timer UI state.");
+     // Check if widget is still mounted before calling setState
+     if (mounted) {
+       setState(() {
+         _isRunning = false;
+         _isPaused = false;
+         _remainingSeconds = 0;
+         _currentSessionId = null;
+         _distractions.clear();
+         _timer?.cancel();
+         _timer = null;
+         // Optionally clear topic: _topicController.clear();
+       });
+     } else {
+        // If not mounted, just ensure timer resource is released
+       _timer?.cancel();
+       _timer = null;
+     }
   }
+
+  // Adds a distraction to the current session's UI list
+  void _addDistraction() {
+    final text = _distractionController.text.trim(); // Trim input
+    if (text.isEmpty) return; // Ignore empty input
+
+    debugPrint("Adding distraction: $text");
+    setState(() {
+      // Optional: Prevent adding exact duplicates
+      if (!_distractions.contains(text)) {
+          _distractions.add(text);
+      }
+      _distractionController.clear(); // Clear the text field
+    });
+     FocusScope.of(context).unfocus(); // Hide keyboard after adding
+  }
+
+  // --- Build Method ---
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.grey[900],
-        title: const Text('Focus Timer'),
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Timer setup or display
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.grey[850],
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: _isRunning
-                  ? _buildRunningTimer()
-                  : _buildTimerSetup(),
+    // Use Consumer to listen for changes in FocusSessionService (e.g., when sessions load/update)
+    return Consumer<FocusSessionService>(
+      builder: (context, focusService, child) {
+        // Get latest stats from the service within the builder
+        final commonDistractions = focusService.getCommonDistractions();
+        final totalFocusMinutes = focusService.getTotalFocusMinutesToday();
+
+        return Scaffold(
+          backgroundColor: Colors.black,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => _handleBackButton(), // Use helper for back logic
             ),
-            
-            const SizedBox(height: 24),
-            
-            // Topic field (before starting)
-            if (!_isRunning)
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey[850],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // lib/ui/self_regulation/pomodoro_timer.dart (continued)
-                    const Text(
-                      'What are you focusing on?',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: _topicController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        hintText: 'e.g., Project work, Reading, Learning...',
-                        hintStyle: TextStyle(color: Colors.grey[600]),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey[700]!),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            
-            // Distraction tracker (when running)
-            if (_isRunning)
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey[850],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Distraction Tracker',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Note what distracts you during your focus session',
-                      style: TextStyle(color: Colors.white70, fontSize: 14),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _distractionController,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
-                              hintText: 'What distracted you?',
-                              hintStyle: TextStyle(color: Colors.grey[600]),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(color: Colors.grey[700]!),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        IconButton(
-                          onPressed: _addDistraction,
-                          icon: const Icon(Icons.add_circle, color: Colors.deepPurpleAccent),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    
-                    // Distraction chips
-                    if (_distractions.isNotEmpty)
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: _distractions.map((distraction) {
-                          return Chip(
-                            label: Text(distraction),
-                            backgroundColor: Colors.deepPurpleAccent.withOpacity(0.3),
-                            deleteIcon: const Icon(Icons.close, size: 16),
-                            onDeleted: () {
-                              setState(() {
-                                _distractions.remove(distraction);
-                              });
-                            },
-                          );
-                        }).toList(),
-                      ),
-                  ],
-                ),
-              ),
-              
-            const SizedBox(height: 24),
-            
-            // Stats section
-            Consumer<FocusSessionService>(
-              builder: (context, focusService, child) {
-                return Container(
-                  padding: const EdgeInsets.all(16),
+            title: const Text('Focus Timer', style: TextStyle(color: Colors.white)),
+          ),
+          body: SingleChildScrollView( // Allow scrolling on smaller screens
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // --- Top Section: Timer or Setup ---
+                Container(
+                  width: double.infinity, // Ensure container takes full width
+                  padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     color: Colors.grey[850],
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Focus Stats',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      _buildStatItem(
-                        'Today\'s Focus Time',
-                        '${focusService.getTotalFocusMinutesToday()} min',
-                        Icons.access_time,
-                      ),
-                      const Divider(color: Colors.grey),
-                      
-                      // Common distractions
-                      const Text(
-                        'Common Distractions:',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      
-                      _buildDistractionsList(focusService),
-                    ],
-                  ),
-                );
-              },
+                  child: _isRunning ? _buildRunningTimer() : _buildTimerSetup(),
+                ),
+                const SizedBox(height: 24),
+
+                // --- Middle Section: Topic or Distractions ---
+                // Show Topic input only when timer is NOT running
+                if (!_isRunning) _buildTopicInput(),
+                // Show Distraction tracker only when timer IS running
+                if (_isRunning) _buildDistractionTracker(),
+                const SizedBox(height: 24),
+
+                // --- Bottom Section: Stats ---
+                _buildStatsSection(commonDistractions, totalFocusMinutes),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
+  // Handles back button press, warns if timer is running
+  void _handleBackButton() {
+     if (_isRunning) {
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            backgroundColor: Colors.grey[900],
+            title: const Text("Discard Session?", style: TextStyle(color: Colors.white)),
+            content: const Text("Navigating back will stop the current focus session. Are you sure?", style: TextStyle(color: Colors.white70)),
+            actions: [
+              TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text("Cancel")),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop(true); // Confirm discard
+                  // Explicitly stop the session when discarding via back button
+                  _completeSession(wasCompleted: false);
+                },
+                child: const Text("Discard", style: TextStyle(color: Colors.redAccent))
+              )
+            ]
+          )
+        ).then((confirmed) {
+           // Only pop the page if user confirmed discard
+           if (confirmed == true && mounted) { // Check mounted again
+              Navigator.pop(context);
+           }
+        });
+     } else {
+        // If timer not running, just pop the page
+        Navigator.pop(context);
+     }
+  }
+
+
+  // --- Helper Build Methods for UI Sections ---
+
   Widget _buildTimerSetup() {
-    return Column(
+     return Column(
       children: [
         const Text(
           'Select Focus Duration',
@@ -356,39 +349,28 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 16),
-        
-        // Duration selection
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildDurationButton(15),
-            _buildDurationButton(25),
-            _buildDurationButton(45),
-            _buildDurationButton(60),
-          ],
-        ),
-        const SizedBox(height: 24),
-        
-        // Start button
+        const SizedBox(height: 20),
+        // Duration Buttons
+         Wrap( // Use Wrap for better spacing if needed
+            alignment: WrapAlignment.center,
+            spacing: 12.0,
+            runSpacing: 8.0,
+            children: [15, 25, 45, 60].map((min) => _buildDurationButton(min)).toList(),
+         ),
+        const SizedBox(height: 30),
+        // Start Button
         SizedBox(
           width: double.infinity,
-          height: 50,
-          child: ElevatedButton(
+          child: ElevatedButton.icon(
             onPressed: _startTimer,
+            icon: const Icon(Icons.play_arrow_rounded, size: 28),
+            label: const Text('Start Focus Session'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.deepPurpleAccent,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text(
-              'Start Focus Session',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+              foregroundColor: Colors.white,
+              backgroundColor: Colors.green,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
           ),
         ),
@@ -398,268 +380,410 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
 
   Widget _buildDurationButton(int minutes) {
     final isSelected = _selectedDuration == minutes;
-    
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _selectedDuration = minutes;
-        });
-      },
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.deepPurpleAccent : Colors.grey[800],
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Text(
-          '$minutes min',
-          style: TextStyle(
+      return ChoiceChip(
+         label: Text('$minutes min'),
+         selected: isSelected,
+         onSelected: (selected) {
+            if (selected && !_isRunning) { // Only allow change if not running
+               setState(() { _selectedDuration = minutes; });
+            }
+         },
+         selectedColor: Colors.deepPurpleAccent,
+         backgroundColor: Colors.grey[800],
+         labelStyle: TextStyle(
             color: isSelected ? Colors.white : Colors.white70,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal
+         ),
+         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+         side: BorderSide.none,
+      );
+  }
+
+  Widget _buildTopicInput() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[850],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'What are you focusing on? (Optional)',
+            style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
           ),
-        ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _topicController,
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              hintText: 'e.g., Project report, Study chapter 3...',
+              hintStyle: TextStyle(color: Colors.grey[600]),
+              filled: true,
+              fillColor: Colors.grey[800],
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            ),
+          ),
+        ],
       ),
     );
   }
 
+  Widget _buildDistractionTracker() {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.grey[850],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Distraction Tracker',
+              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Note distractions as they occur.',
+              style: TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+            const SizedBox(height: 12),
+            // Input Field and Add Button
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center, // Align items vertically
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _distractionController,
+                    style: const TextStyle(color: Colors.white),
+                    onSubmitted: (_) => _addDistraction(), // Add on keyboard submit
+                    decoration: InputDecoration(
+                      hintText: 'What distracted you?',
+                      hintStyle: TextStyle(color: Colors.grey[600]),
+                      filled: true,
+                      fillColor: Colors.grey[800],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  onPressed: _addDistraction, // Calls corrected method
+                  icon: const Icon(Icons.add_circle),
+                  color: Colors.deepPurpleAccent,
+                  iconSize: 32,
+                  tooltip: 'Add Distraction',
+                  padding: EdgeInsets.zero, // Adjust padding if needed
+                  constraints: const BoxConstraints(), // Remove default constraints if needed
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // List of Added Distractions (Chips)
+            if (_distractions.isEmpty)
+              const Padding(
+                 padding: EdgeInsets.symmetric(vertical: 8.0),
+                 child: Text('No distractions logged for this session yet.', style: TextStyle(color: Colors.white54)),
+              )
+            else
+              Wrap(
+                spacing: 8.0,
+                runSpacing: 4.0,
+                children: _distractions.map((distraction) {
+                  return Chip(
+                    label: Text(distraction, style: const TextStyle(color: Colors.white)),
+                    backgroundColor: Colors.deepPurpleAccent.withOpacity(0.4),
+                    deleteIcon: const Icon(Icons.close_rounded, size: 16), // Use rounded icon
+                    deleteIconColor: Colors.white70,
+                    onDeleted: () {
+                      // Remove from the temporary UI list for this session
+                      setState(() { _distractions.remove(distraction); });
+                      debugPrint("Removed distraction from UI list: $distraction");
+                    },
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, // Reduce tap target size
+                  );
+                }).toList(),
+              ),
+          ],
+        ),
+      );
+    }
+
+  Widget _buildStatsSection(List<MapEntry<String, int>> commonDistractions, int totalFocusMinutes) {
+     return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.grey[850],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Focus Stats', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            // Today's Focus Time
+            Row(
+              children: [
+                const Icon(Icons.access_time_filled, color: Colors.deepPurpleAccent, size: 20),
+                const SizedBox(width: 12),
+                const Text("Today's Focus Time", style: TextStyle(color: Colors.white70)),
+                const Spacer(),
+                Text('$totalFocusMinutes min', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+              ],
+            ),
+            const Divider(color: Colors.grey, height: 24),
+            // Common Distractions
+            const Text('Top Common Distractions (All Sessions):', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)),
+            const SizedBox(height: 12),
+            if (commonDistractions.isEmpty)
+               Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                   children: const [
+                      Icon(Icons.info_outline, color: Colors.white54, size: 16),
+                      SizedBox(width: 8),
+                      Text('No distractions recorded yet.', style: TextStyle(color: Colors.white54, fontSize: 13)),
+                   ],
+                )
+              )
+            else
+              // Build the list of distraction entries
+              ListView.separated( // Use ListView for potentially longer lists
+                 shrinkWrap: true, // Important inside SingleChildScrollView
+                 physics: const NeverScrollableScrollPhysics(), // Disable its own scrolling
+                 itemCount: commonDistractions.length,
+                 separatorBuilder: (_, __) => const SizedBox(height: 6), // Space between items
+                 itemBuilder: (context, index) {
+                    final entry = commonDistractions[index];
+                    // Capitalize first letter for display
+                    final displayKey = entry.key.isNotEmpty
+                               ? entry.key[0].toUpperCase() + entry.key.substring(1)
+                               : entry.key;
+                    return Row(
+                      children: [
+                        const Icon(Icons.warning_amber_rounded, color: Colors.orangeAccent, size: 16),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            displayKey,
+                            style: const TextStyle(color: Colors.white70, fontSize: 13),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        // Count Bubble
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: Colors.orangeAccent.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            entry.value.toString(),
+                            style: const TextStyle(color: Colors.orangeAccent, fontSize: 12, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    );
+                 },
+              ),
+          ],
+        ),
+      );
+  }
+
   Widget _buildRunningTimer() {
-    final minutes = _remainingSeconds ~/ 60;
-    final seconds = _remainingSeconds % 60;
-    
+     final minutes = _remainingSeconds ~/ 60;
+     final seconds = _remainingSeconds % 60;
+     // Format time string as MM:SS
+     final displayTime = '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+     final currentTopic = _topicController.text.trim();
+
     return Column(
       children: [
-        // Topic display
-        if (_topicController.text.isNotEmpty)
-          Text(
-            'Focusing on: ${_topicController.text}',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
+        // Show topic if available
+        if (currentTopic.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: Text(
+              'Focusing on: $currentTopic',
+              style: const TextStyle(color: Colors.white70, fontSize: 16),
+              textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis,
             ),
-            textAlign: TextAlign.center,
           ),
-        
-        const SizedBox(height: 24),
-        
-        // Timer display
+        // Timer Display
         Text(
-          '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
+          displayTime,
           style: const TextStyle(
-            color: Colors.white,
-            fontSize: 60,
-            fontWeight: FontWeight.bold,
+            color: Colors.white, fontSize: 72, fontWeight: FontWeight.bold,
+            fontFeatures: [FontFeature.tabularFigures()], // Keep digits aligned
           ),
         ),
-        const SizedBox(height: 24),
-        
-        // Status message
+        const SizedBox(height: 16),
+        // Progress Bar
+        LinearProgressIndicator(
+           // Calculate progress, avoid division by zero if duration is 0
+           value: (_selectedDuration > 0) ? (_selectedDuration * 60 - _remainingSeconds) / (_selectedDuration * 60) : 0,
+           backgroundColor: Colors.grey[700],
+           valueColor: AlwaysStoppedAnimation<Color>(
+               _isPaused ? Colors.orangeAccent : Colors.deepPurpleAccent // Change color if paused
+           ),
+           minHeight: 6,
+        ),
+         const SizedBox(height: 20),
+        // Status Text
         Text(
           _isPaused ? 'Timer Paused' : 'Stay Focused!',
           style: TextStyle(
-            color: _isPaused ? Colors.yellow : Colors.green,
-            fontSize: 16,
+            color: _isPaused ? Colors.orangeAccent : Colors.greenAccent,
+            fontSize: 16, fontWeight: FontWeight.w500,
           ),
         ),
         const SizedBox(height: 24),
-        
-        // Timer controls
+        // Control Buttons
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildTimerButton(
+            _buildTimerControlButton(
               _isPaused ? 'Resume' : 'Pause',
-              _isPaused ? Icons.play_arrow : Icons.pause,
+              _isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
               _isPaused ? _resumeTimer : _pauseTimer,
-              Colors.amber,
+              _isPaused ? Colors.greenAccent : Colors.orangeAccent,
             ),
-            _buildTimerButton(
-              'Stop',
-              Icons.stop,
-              _stopTimer,
-              Colors.red,
-            ),
+            _buildTimerControlButton('Stop', Icons.stop_rounded, _stopTimer, Colors.redAccent),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildTimerButton(
-    String label,
-    IconData icon,
-    VoidCallback onPressed,
-    Color color,
-  ) {
-    return Column(
+  Widget _buildTimerControlButton(String label, IconData icon, VoidCallback onPressed, Color color) {
+     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        IconButton(
+        ElevatedButton(
           onPressed: onPressed,
-          icon: Icon(icon, color: color, size: 36),
-          padding: const EdgeInsets.all(16),
-          style: IconButton.styleFrom(
-            backgroundColor: Colors.grey[800],
+          style: ElevatedButton.styleFrom(
+             backgroundColor: Colors.grey[800],
+             foregroundColor: color,
+             shape: const CircleBorder(),
+             padding: const EdgeInsets.all(18),
+             elevation: 4,
           ),
+           child: Icon(icon, size: 32),
         ),
         const SizedBox(height: 8),
-        Text(
-          label,
-          style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
+        Text(label, style: TextStyle(color: color, fontWeight: FontWeight.w500, fontSize: 13)),
       ],
     );
   }
+} // End of _PomodoroTimerPageState
 
-  Widget _buildStatItem(String label, String value, IconData icon) {
-    return Row(
-      children: [
-        Icon(icon, color: Colors.deepPurpleAccent, size: 20),
-        const SizedBox(width: 12),
-        Text(
-          label,
-          style: const TextStyle(color: Colors.white70),
-        ),
-        const Spacer(),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDistractionsList(FocusSessionService service) {
-    final distractions = service.getCommonDistractions();
-    
-    if (distractions.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 8),
-        child: Text(
-          'No distractions recorded yet',
-          style: TextStyle(color: Colors.white70, fontSize: 12),
-        ),
-      );
-    }
-    
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: distractions.length,
-      itemBuilder: (context, index) {
-        final distraction = distractions[index];
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Row(
-            children: [
-              const Icon(Icons.remove_circle_outline, color: Colors.red, size: 16),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  distraction.key,
-                  style: const TextStyle(color: Colors.white70, fontSize: 12),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  distraction.value.toString(),
-                  style: const TextStyle(color: Colors.red, fontSize: 12),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
+// --- Rating Dialog Widget ---
 class RatingDialog extends StatefulWidget {
   final Function(int) onRatingSubmitted;
-
-  const RatingDialog({
-    super.key,
-    required this.onRatingSubmitted,
-  });
-
+  const RatingDialog({super.key, required this.onRatingSubmitted});
   @override
   State<RatingDialog> createState() => _RatingDialogState();
 }
 
 class _RatingDialogState extends State<RatingDialog> {
-  int _rating = 3;
+  int _rating = 3; // Default rating
+
+  // Helper to get text description for rating
+  String _getRatingDescription(int rating) {
+    switch (rating) {
+      case 1: return 'Very Distracted';
+      case 2: return 'Somewhat Distracted';
+      case 3: return 'Moderately Focused';
+      case 4: return 'Highly Focused';
+      case 5: return 'In the Zone!';
+      default: return '';
+    }
+ }
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+     return AlertDialog(
       backgroundColor: Colors.grey[900],
-      title: const Text(
-        'Session Complete!',
-        style: TextStyle(color: Colors.white),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: const Row(
+         children: [
+            Icon(Icons.check_circle, color: Colors.greenAccent),
+            SizedBox(width: 10),
+            Text('Session Complete!', style: TextStyle(color: Colors.white)),
+         ],
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'How would you rate your focus during this session?',
-            style: TextStyle(color: Colors.white70),
+            'How focused were you during this session?',
+            style: TextStyle(color: Colors.white70, fontSize: 15),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
+          // Star Rating Input using IconButtons
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(5, (index) {
-              final rating = index + 1;
-              return InkWell(
-                onTap: () {
-                  setState(() {
-                    _rating = rating;
-                  });
-                },
-                borderRadius: BorderRadius.circular(12),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      Icon(
-                        rating <= _rating ? Icons.star : Icons.star_border,
-                        color: rating <= _rating ? Colors.amber : Colors.grey,
-                        size: 32,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        rating.toString(),
-                        style: TextStyle(
-                          color: rating <= _rating ? Colors.white : Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
+              final ratingValue = index + 1;
+              final isSelected = ratingValue <= _rating;
+              return IconButton(
+                icon: Icon(
+                   isSelected ? Icons.star_rounded : Icons.star_border_rounded,
+                   color: isSelected ? Colors.amber : Colors.grey[600],
                 ),
+                iconSize: 38, // Slightly larger stars
+                padding: const EdgeInsets.symmetric(horizontal: 4), // Adjust spacing
+                constraints: const BoxConstraints(), // Remove extra padding
+                onPressed: () { setState(() { _rating = ratingValue; }); },
+                tooltip: '$ratingValue star${ratingValue > 1 ? 's' : ''}',
               );
             }),
           ),
+          const SizedBox(height: 12),
+          // Display text description for the selected rating
+           Center(
+             child: Text(
+               _getRatingDescription(_rating),
+               style: const TextStyle(color: Colors.amber, fontSize: 14, fontWeight: FontWeight.w500),
+               textAlign: TextAlign.center,
+             ),
+           )
         ],
       ),
       actions: [
-        TextButton(
+         // Optional: Cancel button if needed
+         // TextButton(
+         //   onPressed: () => Navigator.pop(context),
+         //   child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+         // ),
+        // Submit Button
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+             backgroundColor: Colors.deepPurpleAccent,
+             foregroundColor: Colors.white,
+             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
           onPressed: () {
-            widget.onRatingSubmitted(_rating);
-            Navigator.pop(context);
+            widget.onRatingSubmitted(_rating); // Pass rating back
+            Navigator.pop(context); // Close dialog
           },
-          child: const Text('Submit'),
+          child: const Text('Submit Rating'),
         ),
       ],
     );
   }
 }
-                    
