@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import '../models/topic.dart';
 
 class LearningService extends ChangeNotifier {
-  final String baseUrl = 'http://localhost:8000';
+  final String baseUrl = 'http://100.84.155.122:8000';
   List<Topic> _topics = [];
   bool _isLoading = false;
   String? _error;

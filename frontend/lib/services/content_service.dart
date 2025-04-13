@@ -6,7 +6,7 @@ import 'package:frontend/models/content.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ContentService extends ChangeNotifier {
-  final String baseUrl = 'http://localhost:8000';
+  final String baseUrl = 'http://100.84.155.122:8000';
   List<Content> _content = [];
   bool _isLoading = false;
   String? _error;

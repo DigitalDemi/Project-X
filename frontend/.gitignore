@@ -45,3 +45,4 @@ app.*.map.json
 /android/app/release
 
 ../.DS_Store
+uv.lock

@@ -1,8 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../services/focus_session_service.dart'; // Service for managing sessions
-// Removed direct model import as it's not needed here
+import '../../services/focus_session_service.dart'; 
+
+// I need to promodromo, and add the 5 mins breaks as, splits as well
+// add mius the time from the focus timeer
+// add mutiple reflection
+// add notifcations about, what they have done today, and make it encouraging
+// make a video, about the app 
 
 class PomodoroTimerPage extends StatefulWidget {
   const PomodoroTimerPage({super.key});

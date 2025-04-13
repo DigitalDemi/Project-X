@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:logging/logging.dart';
 
 class ApiService {
-  final String baseUrl = 'http://localhost:8000';
+  final String baseUrl = 'http://100.84.155.122:8000';
   final _logger = Logger('ApiService');
   
   Future<Map<String, dynamic>> syncBatch(List<Map<String, dynamic>> changes) async {
