@@ -1,0 +1,59 @@
+{
+  "questions": [
+    {
+      "question": "What is the primary purpose of using mnemonics?",
+      "options": [
+        "To make complex information easier to recall",
+        "To eliminate the need for studying",
+        "To replace long-term memory",
+        "To summarize chapters"
+      ],
+      "correctAnswer": 0,
+      "explanation": "Mnemonics help encode and retrieve information more easily by using patterns or associations."
+    },
+    {
+      "question": "Which technique involves linking information to vivid mental images?",
+      "options": [
+        "Outlining",
+        "Visualization",
+        "Summarization",
+        "Mind mapping"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Visualization strengthens memory by creating vivid, sensory-linked mental images of the content."
+    },
+    {
+      "question": "What is the method of loci also called?",
+      "options": [
+        "Mnemonic bridge",
+        "Cognitive web",
+        "Memory palace",
+        "Mind vault"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The method of loci, also known as the memory palace technique, links information to familiar locations for easier recall."
+    },
+    {
+      "question": "How can creating visual stories help with memory?",
+      "options": [
+        "They provide colorful diagrams",
+        "They reduce the amount of study time",
+        "They help link concepts in a structured and memorable way",
+        "They replace the need for practice"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Visual stories tie information together in a vivid, structured narrative, making recall easier and more meaningful."
+    },
+    {
+      "question": "What role does practice play in memory techniques?",
+      "options": [
+        "It\u2019s not necessary once you\u2019ve learned a method",
+        "It reinforces neural pathways and boosts retention",
+        "It mainly helps reduce stress",
+        "It increases your note-taking speed"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Consistent practice strengthens memory and ensures techniques become effective and automatic."
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "questions": [
+    {
+      "question": "Why is habit formation important?",
+      "options": [
+        "It removes the need to set goals",
+        "It helps create automatic behaviors that support long-term success",
+        "It eliminates the need for daily routines",
+        "It encourages multitasking"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Habits make positive behaviors automatic, supporting consistent growth without relying solely on motivation."
+    },
+    {
+      "question": "What is the best way to start building a new habit?",
+      "options": [
+        "Begin with a large, ambitious task",
+        "Do everything at once",
+        "Start small with manageable steps",
+        "Wait until you're fully motivated"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Starting with small, achievable actions builds momentum and makes consistency easier."
+    },
+    {
+      "question": "What does the habit loop consist of?",
+      "options": [
+        "Goal, Task, Feedback",
+        "Cue, Routine, Reward",
+        "Trigger, Emotion, Outcome",
+        "Start, Pause, Continue"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The habit loop is made of a cue that triggers a routine, which is followed by a reward that reinforces the behavior."
+    },
+    {
+      "question": "Why are rewards important in habit formation?",
+      "options": [
+        "They make habits less boring",
+        "They give you something to brag about",
+        "They reinforce the behavior by creating a positive association",
+        "They eliminate the need to reflect"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Rewards make your brain associate the habit with something positive, increasing the likelihood of repetition."
+    },
+    {
+      "question": "How does environment affect habit formation?",
+      "options": [
+        "It has no effect",
+        "It can either support or hinder your habits depending on how it\u2019s structured",
+        "You only need to focus on habits, not the environment",
+        "It matters only for physical habits"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Designing your environment to reduce friction makes good habits easier to start and maintain."
+    }
+  ]
+}

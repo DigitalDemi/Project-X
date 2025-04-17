@@ -1,0 +1,59 @@
+{
+  "questions": [
+    {
+      "question": "Why is note-taking important for learning?",
+      "options": [
+        "It makes your handwriting better",
+        "It clarifies ideas, organizes thoughts, and improves recall",
+        "It helps you write faster",
+        "It eliminates the need to study later"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Good note-taking actively engages you in the learning process and improves understanding and memory."
+    },
+    {
+      "question": "What are the three sections of the Cornell Method?",
+      "options": [
+        "Header, Body, Footer",
+        "Title, Highlights, Summary",
+        "Cues, Notes, Summary",
+        "Questions, Answers, Summary"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The Cornell Method divides the page into cues, detailed notes, and a summary section to reinforce structure and review."
+    },
+    {
+      "question": "How does mind mapping support note-taking?",
+      "options": [
+        "It stores notes in a linear format",
+        "It uses graphs to analyze data",
+        "It creates visual connections between ideas",
+        "It summarizes only bullet points"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Mind mapping uses a central idea with branches to visually organize and connect information."
+    },
+    {
+      "question": "Why is summarizing notes in your own words effective?",
+      "options": [
+        "It shortens your notes for easier review",
+        "It helps improve spelling",
+        "It encourages deeper processing and understanding",
+        "It looks more impressive"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Summarizing in your own words ensures you actually understand the material and improves memory retention."
+    },
+    {
+      "question": "What is one tip for making your notes clearer?",
+      "options": [
+        "Use long paragraphs",
+        "Avoid writing during class",
+        "Use bullet points",
+        "Highlight every word"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Bullet points make notes more readable and structured, making them easier to review later."
+    }
+  ]
+}

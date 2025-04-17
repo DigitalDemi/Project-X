@@ -1,0 +1,59 @@
+{
+  "questions": [
+    {
+      "question": "What is the main concept behind time blocking?",
+      "options": [
+        "Completing tasks as they come up",
+        "Working only when you feel productive",
+        "Dividing your day into scheduled time blocks for specific tasks",
+        "Avoiding planning altogether"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Time blocking involves assigning dedicated time slots to specific tasks to improve focus and productivity."
+    },
+    {
+      "question": "What is the first step in implementing time blocking?",
+      "options": [
+        "Estimate how long each task will take",
+        "Start working on random tasks",
+        "List all your daily tasks",
+        "Take breaks first"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Begin by writing down all the tasks you need to accomplish before assigning time to them."
+    },
+    {
+      "question": "How does time blocking support prioritization?",
+      "options": [
+        "By assigning random time slots to low-effort tasks",
+        "By allowing you to delay urgent work",
+        "By turning goals into scheduled commitments based on importance",
+        "By eliminating the need for task lists"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Time blocking reinforces prioritization by ensuring high-impact tasks are scheduled and completed first."
+    },
+    {
+      "question": "Which productivity technique can be combined with time blocking for better results?",
+      "options": [
+        "Pomodoro Technique",
+        "Mind mapping",
+        "Highlighting",
+        "Multitasking"
+      ],
+      "correctAnswer": 0,
+      "explanation": "The Pomodoro Technique can enhance time blocking by structuring focused work and break intervals."
+    },
+    {
+      "question": "Why is it helpful to include buffer time in your time blocks?",
+      "options": [
+        "To waste less time on planning",
+        "To take long naps",
+        "To reduce flexibility",
+        "To manage unexpected interruptions and prevent task overflow"
+      ],
+      "correctAnswer": 3,
+      "explanation": "Buffer time helps absorb delays and keeps your schedule realistic and less stressful."
+    }
+  ]
+}

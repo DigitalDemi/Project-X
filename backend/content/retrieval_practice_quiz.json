@@ -1,0 +1,59 @@
+{
+  "questions": [
+    {
+      "question": "What is retrieval practice?",
+      "options": [
+        "Reviewing notes passively",
+        "Actively recalling information from memory",
+        "Watching videos on the topic",
+        "Highlighting textbooks"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Retrieval practice strengthens memory by actively pulling information from your mind without looking."
+    },
+    {
+      "question": "Which method supports retrieval practice?",
+      "options": [
+        "Cramming",
+        "Skimming chapters",
+        "Taking practice quizzes",
+        "Reading in silence"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Practice quizzes are a great way to engage in retrieval by forcing the brain to recall answers without cues."
+    },
+    {
+      "question": "How does retrieval practice help long-term memory?",
+      "options": [
+        "It builds muscle memory",
+        "It strengthens neural pathways through repeated recall",
+        "It reduces the need to review material",
+        "It stores information in short-term memory only"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Actively recalling information reinforces the memory trace and improves retention over time."
+    },
+    {
+      "question": "What should you do after retrieving information incorrectly?",
+      "options": [
+        "Ignore it and move on",
+        "Punish yourself",
+        "Revisit the material and try again",
+        "Delete it from your notes"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Revisiting and correcting mistakes is part of the learning process and helps solidify the right information."
+    },
+    {
+      "question": "Why is retrieval practice more effective than rereading?",
+      "options": [
+        "It reduces study time to zero",
+        "It adds more content to your notes",
+        "It requires active effort, which enhances learning",
+        "It helps organize your documents better"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Retrieval activates memory and strengthens learning through effortful recall, unlike passive rereading."
+    }
+  ]
+}

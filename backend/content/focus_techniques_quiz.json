@@ -1,0 +1,59 @@
+{
+  "questions": [
+    {
+      "question": "What is the primary goal of focus techniques?",
+      "options": [
+        "To complete multiple tasks at once",
+        "To stay distracted during long tasks",
+        "To improve concentration and productivity by minimizing distractions",
+        "To take more breaks during the day"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Focus techniques help you concentrate deeply on one task by reducing distractions and managing attention."
+    },
+    {
+      "question": "Which of the following is a common focus technique?",
+      "options": [
+        "Multitasking with music and notifications",
+        "Eliminating distractions from your environment",
+        "Checking social media every 10 minutes",
+        "Working without breaks for long hours"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Removing distractions, such as phone notifications or clutter, helps maintain concentration."
+    },
+    {
+      "question": "What role do timers play in focus techniques?",
+      "options": [
+        "They increase stress",
+        "They help structure focused work periods",
+        "They are used only for cooking",
+        "They reduce productivity"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Timers help you create focused work sessions, such as in the Pomodoro Technique, encouraging consistent progress and breaks."
+    },
+    {
+      "question": "Why are structured breaks important?",
+      "options": [
+        "They give you a reason to avoid work",
+        "They allow your brain to recharge and maintain productivity",
+        "They help avoid prioritization",
+        "They shorten your attention span"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Breaks give your mind a rest, improving energy and preventing burnout during long work periods."
+    },
+    {
+      "question": "How does a clean workspace help with focus?",
+      "options": [
+        "It improves the look of your room",
+        "It reduces visual distractions and mental clutter",
+        "It makes studying more social",
+        "It helps you avoid time blocking"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A clean and organized space reduces visual noise, helping your brain stay focused on the task at hand."
+    }
+  ]
+}

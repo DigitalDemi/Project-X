@@ -1,0 +1,59 @@
+{
+  "questions": [
+    {
+      "question": "What does active recall involve?",
+      "options": [
+        "Reading a textbook multiple times",
+        "Testing yourself to retrieve information from memory",
+        "Listening to audio lessons passively",
+        "Highlighting all the key terms in your notes"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Active recall focuses on retrieving information from memory, rather than passive review."
+    },
+    {
+      "question": "Which of the following is a practical method of active recall?",
+      "options": [
+        "Self-quizzing",
+        "Rewriting notes word-for-word",
+        "Reading in silence",
+        "Watching videos on the topic"
+      ],
+      "correctAnswer": 0,
+      "explanation": "Self-quizzing is a direct way to engage with active recall by retrieving answers without looking at the material."
+    },
+    {
+      "question": "Why is summarizing concepts from memory effective?",
+      "options": [
+        "It makes notes look cleaner",
+        "It reinforces neural pathways by recalling details actively",
+        "It helps save paper",
+        "It increases reading speed"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Summarizing from memory strengthens memory by engaging retrieval and cognitive effort."
+    },
+    {
+      "question": "Which app is often used for active recall combined with spaced repetition?",
+      "options": [
+        "Anki",
+        "Word",
+        "Slack",
+        "Zoom"
+      ],
+      "correctAnswer": 0,
+      "explanation": "Anki is a powerful tool that integrates active recall and spaced repetition via flashcards."
+    },
+    {
+      "question": "How does active recall improve exam performance?",
+      "options": [
+        "It reduces the need to study altogether",
+        "It mirrors testing conditions and enhances retrieval speed",
+        "It focuses only on memorizing facts",
+        "It makes studying more passive and relaxed"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Active recall helps simulate exam environments, improving recall under pressure and enhancing learning retention."
+    }
+  ]
+}
