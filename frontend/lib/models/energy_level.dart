@@ -1,13 +1,9 @@
-// lib/models/energy_level.dart
-// overview of pages, explain, introduction, and talk about hardware
-// 1998
-
 class EnergyLevel {
   final String id;
   final DateTime timestamp;
-  final int level; // 1-5 scale
+  final int level; 
   final String? notes;
-  final String? factors; // What influenced the energy level
+  final String? factors; 
 
   EnergyLevel({
     required this.id,

@@ -1,4 +1,3 @@
-// lib/services/topic_service.dart
 import 'package:flutter/foundation.dart';
 import '../models/topic.dart';
 import 'sync_service.dart';
@@ -21,7 +20,9 @@ class TopicService extends ChangeNotifier {
       _topics = localTopics.map((t) => Topic.fromMap(t)).toList();
       notifyListeners();
     } catch (e) {
-      print('Error loading topics: $e');
+      if (kDebugMode) {
+        print('Error loading topics: $e');
+      }
     }
   }
 
@@ -54,7 +55,9 @@ class TopicService extends ChangeNotifier {
         'data': topic.toMap(),
       });
     } catch (e) {
-      print('Error creating topic: $e');
+      if (kDebugMode) {
+        print('Error creating topic: $e');
+      }
       rethrow;
     }
   }
@@ -91,7 +94,9 @@ class TopicService extends ChangeNotifier {
         'data': topic.toMap(),
       });
     } catch (e) {
-      print('Error updating topic: $e');
+      if (kDebugMode) {
+        print('Error updating topic: $e');
+      }
       rethrow;
     }
   }
@@ -118,7 +123,9 @@ class TopicService extends ChangeNotifier {
         'data': {'id': id},
       });
     } catch (e) {
-      print('Error deleting topic: $e');
+      if (kDebugMode) {
+        print('Error deleting topic: $e');
+      }
       rethrow;
     }
   }

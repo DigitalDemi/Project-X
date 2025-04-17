@@ -1,4 +1,3 @@
-// lib/models/topic.dart
 class Topic {
   final String id;
   final String subject;

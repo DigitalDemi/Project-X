@@ -115,7 +115,7 @@ class EventTile extends StatelessWidget {
           color: Colors.grey[850],
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: event.color.withOpacity(0.3),
+            color: event.color.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -152,13 +152,13 @@ class EventTile extends StatelessWidget {
                           Icon(
                             Icons.access_time,
                             size: 16,
-                            color: Colors.white.withOpacity(0.7),
+                            color: Colors.white.withValues(alpha: 0.7),
                           ),
                           const SizedBox(width: 4),
                           Text(
                             '${_formatTime(event.startTime)} - ${_formatTime(event.endTime)}',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.7),
+                              color: Colors.white.withValues(alpha: 0.7),
                               fontSize: 14,
                             ),
                           ),
@@ -169,7 +169,7 @@ class EventTile extends StatelessWidget {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: event.color.withOpacity(0.2),
+                              color: event.color.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(

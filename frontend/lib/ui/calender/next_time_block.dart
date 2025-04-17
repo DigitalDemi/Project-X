@@ -1,4 +1,3 @@
-// lib/ui/calendar/next_time_block.dart
 import 'package:flutter/material.dart';
 import 'dart:async';
 import '../../services/ics_service.dart';

@@ -1,6 +1,5 @@
-// lib/ui/learning/session_planner_page.dart
 import 'dart:convert';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -8,8 +7,6 @@ import 'package:frontend/services/learning_service.dart';
 import 'package:frontend/services/topic_service.dart';
 import 'package:frontend/models/topic.dart';
 import 'package:frontend/services/calender_service.dart';
-import 'package:frontend/models/calendar_event.dart';
-import 'package:frontend/services/energy_service.dart';
 import 'dart:math';
 
 class SessionPlannerPage extends StatefulWidget {
@@ -194,7 +191,9 @@ class _SessionPlannerPageState extends State<SessionPlannerPage> {
     return Consumer<TopicService>(
       builder: (context, topicService, child) {
         var topics = topicService.topics;
-        print("TopicService topics: ${topics.length}");
+        if (kDebugMode) {
+          print("TopicService topics: ${topics.length}");
+        }
 
         // Try also accessing LearningService
         final learningService = Provider.of<LearningService>(
@@ -202,14 +201,16 @@ class _SessionPlannerPageState extends State<SessionPlannerPage> {
           listen: false,
         );
         final learningTopics = learningService.topics;
-        print("LearningService topics: ${learningTopics.length}");
+        if (kDebugMode) {
+          print("LearningService topics: ${learningTopics.length}");
+        }
 
         // If TopicService is empty but LearningService has data,
         // use the LearningService data instead
-        final topicsToUse = topics.isEmpty ? learningTopics : topics;
+        final _ = topics.isEmpty ? learningTopics : topics;
 
         topics = learningTopics;
-        
+
         if (topics.isEmpty) {
           return Center(
             child: Column(
@@ -388,7 +389,9 @@ class _SessionPlannerPageState extends State<SessionPlannerPage> {
       decoration: BoxDecoration(
         color: Colors.grey[850],
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.deepPurpleAccent.withOpacity(0.3)),
+        border: Border.all(
+          color: Colors.deepPurpleAccent.withValues(alpha: 0.3),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -459,7 +462,7 @@ class _SessionPlannerPageState extends State<SessionPlannerPage> {
                     width: 28,
                     height: 28,
                     decoration: BoxDecoration(
-                      color: _getStageColor(topic.stage).withOpacity(0.2),
+                      color: _getStageColor(topic.stage).withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -502,7 +505,7 @@ class _SessionPlannerPageState extends State<SessionPlannerPage> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.deepPurpleAccent.withOpacity(0.2),
+                      color: Colors.deepPurpleAccent.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -538,7 +541,7 @@ class _SessionPlannerPageState extends State<SessionPlannerPage> {
               surface: Color(0xFF303030),
               onSurface: Colors.white,
             ),
-            dialogBackgroundColor: Colors.grey[900],
+            dialogTheme: DialogThemeData(backgroundColor: Colors.grey[900]),
           ),
           child: child!,
         );
@@ -794,48 +797,43 @@ class _SessionPlannerPageState extends State<SessionPlannerPage> {
       context,
       listen: false,
     );
+    final learningService = Provider.of<LearningService>(
+      context,
+      listen: false,
+    );
+    final baseUrl = learningService.baseUrl;
+    final uri = Uri.parse('$baseUrl/study-sessions/');
 
-    // Create event title from topics
     final topicNames = plan.topics.take(3).map((t) => t.name).join(', ');
     final title =
         plan.topics.length > 3
             ? 'Study Session: $topicNames and more'
             : 'Study Session: $topicNames';
 
-    // Create description with topic IDs for backend reference
-    final description = StringBuffer();
-    description.writeln('Learning session with these topics:');
-
+    final description = StringBuffer('Learning session with these topics:\n');
     final topicIds = <String>[];
-
-    for (int i = 0; i < plan.topics.length; i++) {
-      final topic = plan.topics[i];
-      final duration = plan.durations[i];
-      description.writeln('• ${topic.subject}: ${topic.name} ($duration min)');
-      topicIds.add(topic.id);
+    for (var i = 0; i < plan.topics.length; i++) {
+      final t = plan.topics[i];
+      description.writeln(
+        '• ${t.subject}: ${t.name} (${plan.durations[i]} min)',
+      );
+      topicIds.add(t.id);
     }
 
-    // Determine end time
     final endTime = _selectedDate.add(Duration(minutes: _sessionDuration));
-
-    // Create calendar event
     final eventData = {
       'title': title,
       'start_time': _selectedDate.toIso8601String(),
       'end_time': endTime.toIso8601String(),
       'description': description.toString(),
       'category': 'study',
-      'related_topic_ids': topicIds, // Add this to link to backend topics
+      'related_topic_ids': topicIds,
     };
 
     try {
       await calendarService.createEvent(eventData);
-
-      // Also record this study session in the backend
-      await http.post(
-        Uri.parse(
-          '${Provider.of<LearningService>(context, listen: false).baseUrl}/study-sessions/',
-        ),
+      final response = await http.post(
+        uri,
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'start_time': _selectedDate.toIso8601String(),
@@ -845,23 +843,30 @@ class _SessionPlannerPageState extends State<SessionPlannerPage> {
         }),
       );
 
-      if (mounted) {
+      if (!mounted) return;
+      if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Study session scheduled successfully!'),
             backgroundColor: Colors.green,
           ),
         );
-      }
-    } catch (e) {
-      if (mounted) {
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error scheduling session: $e'),
+            content: Text('Failed (${response.statusCode}): ${response.body}'),
             backgroundColor: Colors.red,
           ),
         );
       }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error scheduling session: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 

@@ -1,4 +1,3 @@
-// lib/ui/self_regulation/energy_tracking.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';

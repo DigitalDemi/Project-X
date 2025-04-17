@@ -7,7 +7,6 @@ import 'package:frontend/ui/navigation/shared/top_bar.dart';
 import 'package:frontend/ui/self_regulation/self_regulation_page.dart';
 import 'package:frontend/ui/tasks/task_card.dart';
 import 'package:frontend/ui/tasks/task_list.dart';
-import 'package:frontend/ui/learning/learning_module_navigator.dart'; // New import
 import 'package:frontend/ui/pages/modules_view.dart';
 import 'package:frontend/ui/content/learning_resources_page.dart';
 
@@ -46,7 +45,7 @@ class _BodyState extends State<Body> {
           ),
         );
       case 1:
-        return const LearningModuleHome(); // Replace the Learning Dashboard with our new navigator
+        return const LearningModuleHome(); 
       case 2:
         return const LearningResourcesPage();
       case 3:

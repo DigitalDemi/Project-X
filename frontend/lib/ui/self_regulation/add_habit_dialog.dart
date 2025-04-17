@@ -1,4 +1,3 @@
-// lib/ui/self_regulation/add_habit_dialog.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/habit_service.dart';
@@ -280,7 +279,7 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.deepPurpleAccent.withOpacity(0.3) : Colors.grey[800],
+          color: isSelected ? Colors.deepPurpleAccent.withValues(alpha: 0.3) : Colors.grey[800],
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isSelected ? Colors.deepPurpleAccent : Colors.grey[700]!,

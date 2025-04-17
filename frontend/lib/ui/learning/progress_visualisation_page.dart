@@ -1,4 +1,3 @@
-// lib/ui/learning/progress_visualisation_page.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/services/learning_service.dart';
@@ -264,6 +263,7 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
   Widget _buildLearningCurveChart(List<Topic> topics) {
     // Group review history by date
     final reviewsByDate = <DateTime, int>{};
+    // ignore: unused_local_variable
     int cumulativeReviews = 0;
 
     // Get all review dates
@@ -411,7 +411,7 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
                     dotData: const FlDotData(show: false),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: Colors.deepPurpleAccent.withOpacity(0.2),
+                      color: Colors.deepPurpleAccent.withValues(alpha: 0.2),
                     ),
                   ),
                 ],
@@ -830,7 +830,7 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
                         width: 24,
                         height: 24,
                         decoration: BoxDecoration(
-                          color: _getStageColor(topic.stage).withOpacity(0.2),
+                          color: _getStageColor(topic.stage).withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                         ),
                         child: Center(
@@ -873,7 +873,7 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.deepPurpleAccent.withOpacity(0.2),
+                          color: Colors.deepPurpleAccent.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
@@ -1037,7 +1037,7 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
         color: Colors.grey[850],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: _getStageColor(stage).withOpacity(0.3),
+          color: _getStageColor(stage).withValues(alpha: 0.3),
           width: 2,
         ),
       ),
@@ -1048,7 +1048,7 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: _getStageColor(stage).withOpacity(0.2),
+              color: _getStageColor(stage).withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -1140,7 +1140,7 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
                   color: Colors.grey[850],
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: _getStageColor(stage).withOpacity(0.3),
+                    color: _getStageColor(stage).withValues(alpha: 0.3),
                   ),
                 ),
                 child: Column(
@@ -1688,7 +1688,7 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
                     index.toDouble(),
                     data[index].value.toDouble(),
                     dotPainter: FlDotCirclePainter(
-                      color: Colors.deepPurpleAccent.withOpacity(0.7),
+                      color: Colors.deepPurpleAccent.withValues(alpha: 0.7),
                       radius: 5,
                     ),
                   );
@@ -1762,44 +1762,45 @@ class _ProgressVisualizationPageState extends State<ProgressVisualizationPage> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.book, size: 48, color: Colors.grey[600]),
-          const SizedBox(height: 16),
-          const Text(
-            'No topics available',
-            style: TextStyle(color: Colors.white, fontSize: 16),
+  return Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.book, size: 48, color: Colors.grey[600]),
+        const SizedBox(height: 16),
+        const Text(
+          'No topics available',
+          style: TextStyle(color: Colors.white, fontSize: 16),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Add topics in the Learning Dashboard',
+          style: TextStyle(color: Colors.grey[400]),
+        ),
+        const SizedBox(height: 24),
+        ElevatedButton(
+          onPressed: () async {
+            // Push the AddTopicPage
+            await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AddTopicPage()),
+            );
+            // If this state got disposed (page popped) during the push, bail out
+            if (!mounted) return;
+            // Otherwise it's safe to re-fetch
+            Provider.of<LearningService>(context, listen: false)
+                .fetchTopics();
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.deepPurpleAccent,
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Add topics in the Learning Dashboard',
-            style: TextStyle(color: Colors.grey[400]),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AddTopicPage()),
-              ).then(
-                (_) =>
-                    Provider.of<LearningService>(
-                      context,
-                      listen: false,
-                    ).fetchTopics(),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.deepPurpleAccent,
-            ),
-            child: const Text('Add Your First Topic'),
-          ),
-        ],
-      ),
-    );
-  }
+          child: const Text('Add Your First Topic'),
+        ),
+      ],
+    ),
+  );
+}
+
 
   Color _getStageColor(String stage) {
     switch (stage) {

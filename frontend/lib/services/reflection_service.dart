@@ -1,4 +1,3 @@
-// lib/services/reflection_service.dart
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import '../models/reflection.dart';
@@ -33,7 +32,9 @@ class ReflectionService extends ChangeNotifier {
       _reflections = data.map((e) => Reflection.fromMap(e)).toList();
       notifyListeners();
     } catch (e) {
-      print('Error loading reflections: $e');
+      if (kDebugMode) {
+        print('Error loading reflections: $e');
+      }
     }
   }
 
@@ -73,7 +74,9 @@ class ReflectionService extends ChangeNotifier {
         'data': reflection.toMap(),
       });
     } catch (e) {
-      print('Error adding reflection: $e');
+      if (kDebugMode) {
+        print('Error adding reflection: $e');
+      }
       rethrow;
     }
   }
@@ -96,7 +99,9 @@ class ReflectionService extends ChangeNotifier {
         'data': {'id': reflectionId},
       });
     } catch (e) {
-      print('Error deleting reflection: $e');
+      if (kDebugMode) {
+        print('Error deleting reflection: $e');
+      }
       rethrow;
     }
   }

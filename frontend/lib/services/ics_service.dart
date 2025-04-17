@@ -1,4 +1,3 @@
-// lib/services/ics_service.dart
 import 'package:http/http.dart' as http;
 import 'package:icalendar_parser/icalendar_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,7 +23,6 @@ class IcsService {
     }
   }
 
-  // lib/services/ics_service.dart
   DateTime _convertToDateTime(dynamic date) {
     if (date is DateTime) {
       return date;

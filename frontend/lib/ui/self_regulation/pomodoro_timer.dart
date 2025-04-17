@@ -3,11 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/focus_session_service.dart'; 
 
-// I need to promodromo, and add the 5 mins breaks as, splits as well
-// add mius the time from the focus timeer
-// add mutiple reflection
-// add notifcations about, what they have done today, and make it encouraging
-// make a video, about the app 
 
 class PomodoroTimerPage extends StatefulWidget {
   const PomodoroTimerPage({super.key});
@@ -17,17 +12,15 @@ class PomodoroTimerPage extends StatefulWidget {
 }
 
 class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
-  // Timer State
-  int _selectedDuration = 25; // Default duration in minutes
+  int _selectedDuration = 25; 
   bool _isRunning = false;
   bool _isPaused = false;
   int _remainingSeconds = 0;
   Timer? _timer;
 
-  // Session Data State
-  String? _currentSessionId; // ID of the currently active session
+  String? _currentSessionId; 
   final _topicController = TextEditingController();
-  final List<String> _distractions = []; // UI list for *current* session's distractions
+  final List<String> _distractions = []; 
   final _distractionController = TextEditingController();
 
   @override
@@ -38,25 +31,21 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     super.dispose();
   }
 
-  // --- Timer Actions ---
 
   void _startTimer() async {
     if (_isRunning) return; // Prevent multiple timers
 
-    // Get service instance (don't listen here, just triggering action)
     final focusService = Provider.of<FocusSessionService>(context, listen: false);
     final topic = _topicController.text.trim();
 
     debugPrint("Attempting to start timer...");
     try {
-      // Ask the service to start and save the session first
       _currentSessionId = await focusService.startSession(
         durationMinutes: _selectedDuration,
         topic: topic.isEmpty ? null : topic,
       );
       debugPrint("Service started session with ID: $_currentSessionId");
 
-      // If successful, update UI state and start the countdown timer
       setState(() {
         _isRunning = true;
         _isPaused = false;
@@ -174,7 +163,6 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     );
   }
 
-  // --- Session Management ---
 
   // Central method to end the session (completed or stopped)
   void _completeSession({required bool wasCompleted, int focusRating = 0}) {
@@ -242,7 +230,6 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
 
     debugPrint("Adding distraction: $text");
     setState(() {
-      // Optional: Prevent adding exact duplicates
       if (!_distractions.contains(text)) {
           _distractions.add(text);
       }
@@ -251,11 +238,9 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
      FocusScope.of(context).unfocus(); // Hide keyboard after adding
   }
 
-  // --- Build Method ---
 
   @override
   Widget build(BuildContext context) {
-    // Use Consumer to listen for changes in FocusSessionService (e.g., when sessions load/update)
     return Consumer<FocusSessionService>(
       builder: (context, focusService, child) {
         // Get latest stats from the service within the builder
@@ -290,14 +275,10 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                 ),
                 const SizedBox(height: 24),
 
-                // --- Middle Section: Topic or Distractions ---
-                // Show Topic input only when timer is NOT running
                 if (!_isRunning) _buildTopicInput(),
-                // Show Distraction tracker only when timer IS running
                 if (_isRunning) _buildDistractionTracker(),
                 const SizedBox(height: 24),
 
-                // --- Bottom Section: Stats ---
                 _buildStatsSection(commonDistractions, totalFocusMinutes),
               ],
             ),
@@ -307,7 +288,6 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
     );
   }
 
-  // Handles back button press, warns if timer is running
   void _handleBackButton() {
      if (_isRunning) {
         showDialog(
@@ -321,7 +301,6 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
               TextButton(
                 onPressed: () {
                   Navigator.of(ctx).pop(true); // Confirm discard
-                  // Explicitly stop the session when discarding via back button
                   _completeSession(wasCompleted: false);
                 },
                 child: const Text("Discard", style: TextStyle(color: Colors.redAccent))
@@ -341,7 +320,6 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
   }
 
 
-  // --- Helper Build Methods for UI Sections ---
 
   Widget _buildTimerSetup() {
      return Column(
@@ -508,7 +486,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                 children: _distractions.map((distraction) {
                   return Chip(
                     label: Text(distraction, style: const TextStyle(color: Colors.white)),
-                    backgroundColor: Colors.deepPurpleAccent.withOpacity(0.4),
+                    backgroundColor: Colors.deepPurpleAccent.withValues(alpha: 0.4),
                     deleteIcon: const Icon(Icons.close_rounded, size: 16), // Use rounded icon
                     deleteIconColor: Colors.white70,
                     onDeleted: () {
@@ -563,9 +541,8 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                 )
               )
             else
-              // Build the list of distraction entries
-              ListView.separated( // Use ListView for potentially longer lists
-                 shrinkWrap: true, // Important inside SingleChildScrollView
+              ListView.separated( 
+                 shrinkWrap: true,
                  physics: const NeverScrollableScrollPhysics(), // Disable its own scrolling
                  itemCount: commonDistractions.length,
                  separatorBuilder: (_, __) => const SizedBox(height: 6), // Space between items
@@ -591,7 +568,7 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: Colors.orangeAccent.withOpacity(0.2),
+                            color: Colors.orangeAccent.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
@@ -617,7 +594,6 @@ class _PomodoroTimerPageState extends State<PomodoroTimerPage> {
 
     return Column(
       children: [
-        // Show topic if available
         if (currentTopic.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(bottom: 16.0),
@@ -704,9 +680,8 @@ class RatingDialog extends StatefulWidget {
 }
 
 class _RatingDialogState extends State<RatingDialog> {
-  int _rating = 3; // Default rating
+  int _rating = 3; 
 
-  // Helper to get text description for rating
   String _getRatingDescription(int rating) {
     switch (rating) {
       case 1: return 'Very Distracted';
@@ -739,7 +714,6 @@ class _RatingDialogState extends State<RatingDialog> {
             style: TextStyle(color: Colors.white70, fontSize: 15),
           ),
           const SizedBox(height: 20),
-          // Star Rating Input using IconButtons
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(5, (index) {
@@ -759,7 +733,6 @@ class _RatingDialogState extends State<RatingDialog> {
             }),
           ),
           const SizedBox(height: 12),
-          // Display text description for the selected rating
            Center(
              child: Text(
                _getRatingDescription(_rating),
@@ -770,12 +743,6 @@ class _RatingDialogState extends State<RatingDialog> {
         ],
       ),
       actions: [
-         // Optional: Cancel button if needed
-         // TextButton(
-         //   onPressed: () => Navigator.pop(context),
-         //   child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
-         // ),
-        // Submit Button
         ElevatedButton(
           style: ElevatedButton.styleFrom(
              backgroundColor: Colors.deepPurpleAccent,

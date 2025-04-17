@@ -1,4 +1,3 @@
-// lib/services/energy_service.dart
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import '../models/energy_level.dart';
@@ -22,7 +21,9 @@ class EnergyService extends ChangeNotifier {
       _energyLevels = levels.map((e) => EnergyLevel.fromMap(e)).toList();
       notifyListeners();
     } catch (e) {
-      print('Error loading energy levels: $e');
+      if (kDebugMode) {
+        print('Error loading energy levels: $e');
+      }
     }
   }
 
@@ -52,7 +53,9 @@ class EnergyService extends ChangeNotifier {
         'data': energyLevel.toMap(),
       });
     } catch (e) {
-      print('Error adding energy level: $e');
+      if (kDebugMode) {
+        print('Error adding energy level: $e');
+      }
       rethrow;
     }
   }

@@ -1,10 +1,8 @@
-// lib/ui/self_regulation/self_regulation_page.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/energy_service.dart';
 import '../../services/focus_session_service.dart';
 import '../../services/habit_service.dart';
-import '../../services/reflection_service.dart';
 import '../../services/mood_service.dart';
 import 'energy_tracking.dart';
 import 'pomodoro_timer.dart';
@@ -216,7 +214,7 @@ class SelfRegulationPage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.2),
+                  color: color.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, color: color, size: 24),

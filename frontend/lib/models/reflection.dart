@@ -1,4 +1,3 @@
-// lib/models/reflection.dart
 class Reflection {
   final String id;
   final DateTime date;

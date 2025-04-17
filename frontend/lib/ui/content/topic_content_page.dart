@@ -1,4 +1,3 @@
-// lib/ui/content/topic_content_page.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/models/content.dart';
@@ -98,7 +97,7 @@ class TopicContentPage extends StatelessWidget {
                   return entry.value.isNotEmpty 
                       ? _buildContentTypeSection(entry.key, entry.value)
                       : const SizedBox.shrink();
-                }).toList(),
+                }),
               ],
             ),
           );
@@ -190,7 +189,7 @@ class TopicContentPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Text(

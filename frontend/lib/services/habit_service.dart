@@ -1,4 +1,3 @@
-// lib/services/habit_service.dart
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import '../models/habit.dart';
@@ -35,7 +34,9 @@ class HabitService extends ChangeNotifier {
       
       notifyListeners();
     } catch (e) {
-      print('Error loading habits: $e');
+      if (kDebugMode) {
+        print('Error loading habits: $e');
+      }
     }
   }
 
@@ -75,7 +76,9 @@ class HabitService extends ChangeNotifier {
         'data': habit.toMap(),
       });
     } catch (e) {
-      print('Error creating habit: $e');
+      if (kDebugMode) {
+        print('Error creating habit: $e');
+      }
       rethrow;
     }
   }
@@ -130,7 +133,9 @@ class HabitService extends ChangeNotifier {
         'data': finalHabit.toMap(),
       });
     } catch (e) {
-      print('Error toggling habit: $e');
+      if (kDebugMode) {
+        print('Error toggling habit: $e');
+      }
       rethrow;
     }
   }
@@ -153,7 +158,9 @@ class HabitService extends ChangeNotifier {
         'data': {'id': habitId},
       });
     } catch (e) {
-      print('Error deleting habit: $e');
+      if (kDebugMode) {
+        print('Error deleting habit: $e');
+      }
       rethrow;
     }
   }
@@ -181,7 +188,7 @@ class HabitService extends ChangeNotifier {
         tempStreak = 1;
       } else {
         // Check if consecutive day
-        final difference = cleanDate.difference(previousDate!).inDays;
+        final difference = cleanDate.difference(previousDate).inDays;
         
         if (difference == 1) {
           // Consecutive day

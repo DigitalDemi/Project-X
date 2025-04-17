@@ -1,4 +1,3 @@
-// lib/models/meeting.dart
 class Meeting {
   final String id;
   final String title;

@@ -1,4 +1,3 @@
-// lib/ui/self_regulation/add_mood_entry_dialog.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/mood_service.dart';
@@ -137,7 +136,7 @@ class _AddMoodEntryDialogState extends State<AddMoodEntryDialog> {
                 return ChoiceChip(
                   label: Text(factor),
                   selected: isSelected,
-                  selectedColor: Colors.deepPurpleAccent.withOpacity(0.7),
+                  selectedColor: Colors.deepPurpleAccent.withValues(alpha: 0.7),
                   backgroundColor: Colors.grey[800],
                   labelStyle: TextStyle(
                     color: isSelected ? Colors.white : Colors.white70,
@@ -193,7 +192,7 @@ class _AddMoodEntryDialogState extends State<AddMoodEntryDialog> {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.3) : Colors.transparent,
+          color: isSelected ? color.withValues(alpha: 0.3) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: isSelected ? Border.all(color: color, width: 2) : null,
         ),

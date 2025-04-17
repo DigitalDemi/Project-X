@@ -1,4 +1,3 @@
-// lib/ui/content/learning_resources_page.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/models/content.dart';
@@ -17,7 +16,7 @@ class _LearningResourcesPageState extends State<LearningResourcesPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
+  // String _searchQuery = '';
 
   @override
   void initState() {
@@ -57,6 +56,7 @@ class _LearningResourcesPageState extends State<LearningResourcesPage>
               if (selectedContent != null) {
                 if (mounted) {
                   Navigator.push(
+                    // ignore: use_build_context_synchronously
                     context,
                     MaterialPageRoute(
                       builder:
@@ -269,7 +269,7 @@ class ResourceCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Icon(iconData, color: color, size: 20),
@@ -359,7 +359,7 @@ class SubjectOrganizedTab extends StatelessWidget {
             ),
           ),
         ),
-        ...content.map((item) => ResourceCard(content: item)).toList(),
+        ...content.map((item) => ResourceCard(content: item)),
         const Divider(color: Colors.grey),
       ],
     );
@@ -466,7 +466,7 @@ class TypeOrganizedTab extends StatelessWidget {
             ],
           ),
         ),
-        ...content.map((item) => ResourceCard(content: item)).toList(),
+        ...content.map((item) => ResourceCard(content: item)),
         const Divider(color: Colors.grey),
       ],
     );

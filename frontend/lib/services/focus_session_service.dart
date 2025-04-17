@@ -1,15 +1,12 @@
-import 'dart:convert'; // For JSON handling
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart'; // For generating IDs
 
-import '../models/focus_session.dart'; // Your FocusSession model
-// Import your DB access service (e.g., SyncService or LocalDatabase)
+import '../models/focus_session.dart'; 
 import 'sync_service.dart';
 
 class FocusSessionService extends ChangeNotifier {
-  // Service responsible for providing the Database instance
-  final SyncService _dbService; // Use appropriate type (SyncService, LocalDatabase, etc.)
+  final SyncService _dbService; 
   List<FocusSession> _sessions = [];
   final _uuid = const Uuid(); // UUID generator
 
@@ -20,7 +17,6 @@ class FocusSessionService extends ChangeNotifier {
   // Return an unmodifiable view to prevent direct list modification from UI
   List<FocusSession> get sessions => List.unmodifiable(_sessions);
 
-  // --- Database Operations ---
 
   Future<Database> get _db async => await _dbService.database; // Helper getter for DB
 
@@ -44,7 +40,6 @@ class FocusSessionService extends ChangeNotifier {
             loadedSessions.add(session);
          } catch (e, stackTrace) {
             debugPrint("!!!!!! Error converting map to FocusSession: $map \nError: $e\n$stackTrace");
-            // Skip corrupted entries in production?
          }
       }
       _sessions = loadedSessions;
@@ -53,7 +48,6 @@ class FocusSessionService extends ChangeNotifier {
       notifyListeners(); // Notify UI of changes
     } catch (e, stackTrace) {
       debugPrint('!!!!!! Error loading focus sessions from DB: $e\n$stackTrace');
-      // Handle error appropriately (e.g., show error state)
     }
   }
 
@@ -112,7 +106,6 @@ class FocusSessionService extends ChangeNotifier {
     final index = _sessions.indexWhere((s) => s.id == id);
     if (index == -1) {
        debugPrint("Error: Session $id not found in memory list for update.");
-       // Optional: Try loading from DB again? Or just return.
        return;
     }
 
@@ -138,7 +131,6 @@ class FocusSessionService extends ChangeNotifier {
 
     try {
       final db = await _db;
-      // Update the record in the database
       int count = await db.update(
         'focus_sessions',
         dataToSave, // Use the map from toMap()
@@ -153,27 +145,16 @@ class FocusSessionService extends ChangeNotifier {
          debugPrint("Session $id updated in memory and DB. Notifying listeners.");
          notifyListeners(); // Notify UI about the change
 
-         // --- Optional: Sync Service Integration ---
-         // Queue this change if needed for backend sync
-         // _dbService.queueChange({ ... 'data': dataToSave ... });
-         // debugPrint("Change queued for sync.");
-         // --- End Optional Sync ---
-
       } else {
-         // ID wasn't found in DB for update, maybe deleted?
          debugPrint("Warning: Database update reported 0 rows affected for ID: $id.");
-         // Optionally remove from in-memory list if DB update fails?
-         // _sessions.removeAt(index);
-         // notifyListeners();
+       
       }
 
     } catch (e, stackTrace) {
       debugPrint('!!!!!! Error completing/updating focus session $id in DB: $e\n$stackTrace');
-      // Handle DB errors (e.g., inform user, retry later?)
     }
   }
 
-  // --- Stats Calculations ---
 
   // Calculates total focus minutes for *completed* sessions today
   int getTotalFocusMinutesToday() {

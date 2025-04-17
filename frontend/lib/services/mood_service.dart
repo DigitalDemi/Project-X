@@ -1,4 +1,3 @@
-// lib/services/mood_service.dart
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import '../models/mood_entry.dart';
@@ -38,7 +37,9 @@ class MoodService extends ChangeNotifier {
       _entries = data.map((e) => MoodEntry.fromMap(e)).toList();
       notifyListeners();
     } catch (e) {
-      print('Error loading mood entries: $e');
+      if (kDebugMode) {
+        print('Error loading mood entries: $e');
+      }
     }
   }
 
@@ -74,7 +75,9 @@ class MoodService extends ChangeNotifier {
         'data': entry.toMap(),
       });
     } catch (e) {
-      print('Error adding mood entry: $e');
+      if (kDebugMode) {
+        print('Error adding mood entry: $e');
+      }
       rethrow;
     }
   }
@@ -103,7 +106,6 @@ class MoodService extends ChangeNotifier {
       moodsByDay[dateKey] = [];
     }
     
-    // Add actual data
     for (final entry in _entries) {
       final date = entry.timestamp;
       if (now.difference(date).inDays < days) {

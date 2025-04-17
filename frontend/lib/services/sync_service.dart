@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
-// Assuming these imports point to your actual files
-import 'local_database.dart'; // Needs to provide the Database instance and schema
-import 'api_service.dart';     // Your API interaction logic
+import 'local_database.dart';
+import 'api_service.dart';     
 import 'package:logging/logging.dart';
 
-// --- Configuration Class ---
 class SyncConfig {
   final Duration syncInterval;
   final bool syncTasks;
@@ -25,9 +23,8 @@ class SyncConfig {
   });
 }
 
-// --- Sync Service ---
 class SyncService {
-  final LocalDatabase _localDb; // Provides the actual DB instance
+  final LocalDatabase _localDb; 
   final ApiService _apiService;
   final SyncConfig _config;
   final List<Map<String, dynamic>> _syncQueue = [];
@@ -46,10 +43,8 @@ class SyncService {
 
   void _initializeSync() {
     _startPeriodicSync();
-    // Basic logging setup
     Logger.root.level = Level.INFO; // Adjust level as needed
     Logger.root.onRecord.listen((record) {
-      // TODO: Implement proper logging (e.g., file, remote service)
       debugPrint('${record.level.name}: ${record.time}: ${record.loggerName}: ${record.message}');
        if (record.error != null) {
          debugPrint('Error: ${record.error}');
@@ -67,43 +62,41 @@ class SyncService {
      _logger.info("Periodic sync started with interval: ${_config.syncInterval}");
   }
 
-  // --- Queueing Logic (placeholder based on your code) ---
-  // This needs refinement based on actual sync requirements
+
   void queueChange(Map<String, dynamic> change) {
     _logger.fine("Queueing change: $change");
     _syncQueue.add(change);
-    _scheduleBatchSync(); // Trigger sync attempt soon
+    _scheduleBatchSync();  
   }
 
   void _scheduleBatchSync() {
-    // Debounce the sync call slightly
     _syncTimer?.cancel();
-    _syncTimer = Timer(const Duration(seconds: 10), () async { // Increased delay slightly
+    _syncTimer = Timer(const Duration(seconds: 10), () async { 
       if (_syncQueue.isEmpty) {
          _logger.fine("Sync queue is empty, skipping batch sync.");
-         _startPeriodicSync(); // Restart periodic timer if queue is empty
+         _startPeriodicSync(); 
          return;
       }
       if (_isSyncing) {
          _logger.info("Sync already in progress, rescheduling batch sync check.");
-         _scheduleBatchSync(); // Check again later
+         _scheduleBatchSync(); 
          return;
       }
 
       final batch = List<Map<String, dynamic>>.unmodifiable(_syncQueue); // Take immutable copy
-      _syncQueue.clear(); // Clear queue optimistically
+      _syncQueue.clear(); 
       _logger.info("Attempting to sync batch of ${batch.length} changes.");
 
       try {
         _isSyncing = true;
-        await _apiService.syncBatch(batch); // Assuming API handles batch
+        await _apiService.syncBatch(batch); 
         _logger.info("Sync batch successful.");
-        _failedAttempts = 0; // Reset failure counter
-        _startPeriodicSync(); // Restart periodic timer on success
+        _failedAttempts = 0; 
+        _startPeriodicSync();
       } catch (e, stackTrace) {
         _logger.warning('Sync batch failed: $e', e, stackTrace);
-        _syncQueue.insertAll(0, batch); // Add batch back to the front of the queue on failure
-        _handleSyncFailure(); // Schedule retry
+        _syncQueue.insertAll(0, batch); 
+        _handleSyncFailure(); 
       } finally {
         _isSyncing = false;
       }
@@ -112,7 +105,6 @@ class SyncService {
 
   void _handleSyncFailure() {
     _failedAttempts++;
-    // Exponential backoff with clamping
     final delay = Duration(
       seconds: (_config.retryDelay.inSeconds * _failedAttempts).clamp(30, 300)
     );
@@ -134,9 +126,7 @@ class SyncService {
   }
 
 
-  // --- Full Sync Logic (placeholder based on your code) ---
-  // This logic seems geared towards syncing *other* data types based on a local 'sync_status'
-  // It might not be directly applicable to Focus Sessions unless they also have this status.
+ 
   Future<void> syncData() async {
     if (_isSyncing) {
       _logger.info('Full sync triggered, but already in progress, skipping.');
@@ -151,40 +141,34 @@ class SyncService {
       _isSyncing = true;
       final db = await database;
 
-      // This part assumes 'tasks', 'meetings', 'topics' tables exist with a 'sync_status'
       final queries = <Future>[];
       if (_config.syncTasks) queries.add(_syncType(db, 'tasks'));
       if (_config.syncCalendar) queries.add(_syncType(db, 'meetings'));
       if (_config.syncTopics) queries.add(_syncType(db, 'topics'));
-      // Add Focus Sessions if they need similar status-based syncing:
-      // queries.add(_syncType(db, 'focus_sessions'));
-
+     
       await Future.wait(queries);
 
-      // Also process any queued changes immediately after full sync attempt
       if (_syncQueue.isNotEmpty) {
          _logger.info("Processing queued changes after full sync attempt.");
-         _scheduleBatchSync(); // This will handle API call + error logic
+         _scheduleBatchSync(); 
       } else {
          _logger.info('Full sync completed successfully.');
-         _failedAttempts = 0; // Reset counter on overall success
-         _startPeriodicSync(); // Restart periodic sync if queue is empty
+         _failedAttempts = 0;
+         _startPeriodicSync();
       }
 
     } catch (e, stackTrace) {
       _logger.severe('Full sync failed: $e', e, stackTrace);
-      _handleSyncFailure(); // Schedule retry for queued items if any, or just log failure
+      _handleSyncFailure();
     } finally {
       _isSyncing = false;
     }
   }
 
-  // Helper for the status-based sync (adjust if needed)
   Future<void> _syncType(Database db, String table) async {
      _logger.info("Checking sync status for table: $table");
     try {
       // Check if table exists and has 'sync_status' column before querying
-      // (Add proper schema check if needed)
       final unsynced = await db.query(
         table,
         where: 'sync_status = ?', // Assumes 'pending' status exists
@@ -221,8 +205,6 @@ class SyncService {
 
     } catch (e, stackTrace) {
       _logger.warning('Error syncing type $table: $e', e, stackTrace);
-      // Decide if this error should halt the entire sync or just this type
-      // Rethrowing will cause the main syncData to fail
       rethrow;
     }
   }
@@ -256,7 +238,6 @@ class SyncService {
             successCount++;
           } catch (e, stackTrace) {
             _logger.warning('Error processing server change for $table (ID: ${data['id']}): $e', e, stackTrace);
-            // Continue processing other changes
           }
         }
       }

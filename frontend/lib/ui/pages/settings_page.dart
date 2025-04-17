@@ -14,19 +14,27 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   final ImagePicker _picker = ImagePicker();
 
-  Future<void> _pickImage(BuildContext context) async {
-    try {
-      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-      if (image != null) {
-        // Get the ProfileService instance
-        final profileService = Provider.of<ProfileService>(context, listen: false);
-        // Save the image path
-        await profileService.saveImagePath(image.path);
-      }
-    } catch (e) {
-      debugPrint('Error picking image: $e');
+  Future<void> _pickImage() async {
+  final profileService = Provider.of<ProfileService>(context, listen: false);
+
+  try {
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (image != null) {
+      await profileService.saveImagePath(image.path);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profile image updated')),
+      );
     }
+  } catch (e) {
+    debugPrint('Error picking image: $e');
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +80,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         bottom: 0,
                         right: 0,
                         child: GestureDetector(
-                          onTap: () => _pickImage(context),
+                          onTap: () => _pickImage(),
                           child: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: const BoxDecoration(

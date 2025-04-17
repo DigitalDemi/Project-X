@@ -1,4 +1,3 @@
-// lib/ui/pages/add_topic_page.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/services/learning_service.dart';
@@ -14,6 +13,7 @@ class _AddTopicPageState extends State<AddTopicPage> {
   final _subjectController = TextEditingController();
   final _topicController = TextEditingController();
   String _status = 'active';
+  // ignore: prefer_final_fields
   List<String> _prerequisites = [];
   bool _isLoading = false;
   String? _errorMessage;
@@ -90,7 +90,7 @@ class _AddTopicPageState extends State<AddTopicPage> {
                       padding: const EdgeInsets.all(12),
                       margin: const EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.1),
+                        color: Colors.red.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(

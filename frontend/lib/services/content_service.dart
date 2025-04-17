@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:frontend/models/content.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ContentService extends ChangeNotifier {
   final String baseUrl = 'http://100.84.155.122:8000';
@@ -69,7 +68,9 @@ class ContentService extends ChangeNotifier {
         );
       }
     } catch (e) {
-      print('Error getting content: $e');
+      if (kDebugMode) {
+        print('Error getting content: $e');
+      }
       throw Exception('Error getting content: $e');
     }
   }

@@ -57,8 +57,7 @@ class CalendarEvent {
       case EventCategory.other:
         return Colors.grey;
       case EventCategory.general:
-      default:
-        return Colors.blueGrey;
+      return Colors.blueGrey;
     }
   }
 
@@ -72,7 +71,7 @@ class CalendarEvent {
       'source': source.toString(),
       'category': category.toString(),
       'external_id': externalId,
-      'color': color.value,
+      'color': color.toARGB32(),
     };
   }
 
@@ -92,7 +91,7 @@ class CalendarEvent {
         orElse: () => EventCategory.general,
       ),
       externalId: map['external_id'] as String?,
-      color: Color(map['color'] as int? ?? _getCategoryColor(EventCategory.general).value),
+      color: Color(map['color'] as int? ?? _getCategoryColor(EventCategory.general).toARGB32()),
     );
   }
 

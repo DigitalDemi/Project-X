@@ -1,11 +1,8 @@
-// lib/ui/learning/learning_module_navigator.dart
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/pages/learning_dashboard.dart';
 import 'package:frontend/ui/content/learning_resources_page.dart';
 import 'package:frontend/ui/learning/progress_visualisation_page.dart';
 import 'package:frontend/ui/learning/session_planner_page.dart';
-import 'package:provider/provider.dart';
-import 'package:frontend/services/learning_service.dart';
 
 class LearningModuleNavigator extends StatefulWidget {
   const LearningModuleNavigator({super.key});
@@ -31,7 +28,7 @@ class _LearningModuleNavigatorState extends State<LearningModuleNavigator> {
               color: Colors.grey[900],
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha: 0.3),
                   blurRadius: 5,
                   offset: const Offset(0, 3),
                 ),
@@ -93,7 +90,7 @@ class _LearningModuleNavigatorState extends State<LearningModuleNavigator> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.deepPurpleAccent.withOpacity(0.2) : Colors.transparent,
+          color: isSelected ? Colors.deepPurpleAccent.withValues(alpha: 0.2) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(

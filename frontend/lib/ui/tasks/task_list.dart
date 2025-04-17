@@ -1,4 +1,3 @@
-// lib/ui/tasks/task_list.dart
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/calender/next_time_block.dart';
 
@@ -83,7 +82,7 @@ class _TaskListSectionState extends State<TaskListSection> {
                       ),
                       Icon(
                         Icons.edit_note,
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withValues(alpha: 0.7),
                         size: 20,
                       ),
                     ],
@@ -100,7 +99,7 @@ class _TaskListSectionState extends State<TaskListSection> {
                           decoration: InputDecoration(
                             hintText: 'Add new task',
                             hintStyle: TextStyle(
-                              color: Colors.white.withOpacity(0.5),
+                              color: Colors.white.withValues(alpha: 0.5),
                               fontSize: 13,
                             ),
                             isDense: true,

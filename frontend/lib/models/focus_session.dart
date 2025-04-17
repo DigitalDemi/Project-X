@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart'; // For JSON encoding/decoding
 
 class FocusSession {
@@ -20,7 +20,7 @@ class FocusSession {
     this.topic,
     this.distractions,
     required this.focusRating,
-    required this.isCompleted, // Ensure this is required
+    required this.isCompleted, 
   });
 
   // Convert FocusSession to Map for database storage
@@ -47,19 +47,19 @@ class FocusSession {
     if (rawDistractions != null && rawDistractions is String && rawDistractions.isNotEmpty) {
       try {
         final List<dynamic> decodedList = jsonDecode(rawDistractions);
+
         // Convert to List<String>, filtering out nulls/empties robustly
         decodedDistractions = decodedList
             .map((e) => e?.toString()) // Convert item to string safely
             .where((s) => s != null && s.isNotEmpty).cast<String>() // Filter out null or empty strings
             .toList();
-        // Optional: Handle case where filtering results in an empty list
-        // if (decodedDistractions.isEmpty) decodedDistractions = null;
       } catch (e) {
-        print('!!!!!! Error decoding distractions JSON: "$rawDistractions" - $e');
+        if (kDebugMode) {
+          print('!!!!!! Error decoding distractions JSON: "$rawDistractions" - $e');
+        }
         decodedDistractions = null; // Handle decoding error
       }
     } else {
-      // Handle cases where it's null, already a list (unlikely), or other types
       decodedDistractions = null;
     }
 
@@ -76,7 +76,6 @@ class FocusSession {
     );
   }
 
-  // Optional: copyWith for easier updates if needed elsewhere
    FocusSession copyWith({
     String? id,
     DateTime? startTime,

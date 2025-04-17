@@ -1,4 +1,3 @@
-// lib/ui/calendar/calendar_view.dart
 import 'package:flutter/material.dart';
 import 'package:frontend/services/calender_service.dart';
 import 'package:provider/provider.dart';

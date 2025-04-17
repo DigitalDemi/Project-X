@@ -1,4 +1,3 @@
-// lib/ui/navigation/shared/bottom_navigation.dart
 import 'package:flutter/material.dart';
 
 class CustomBottomNavigation extends StatefulWidget {
@@ -23,7 +22,7 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation> {
         color: Colors.black,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -57,7 +56,7 @@ class _CustomBottomNavigationState extends State<CustomBottomNavigation> {
           BottomNavigationBarItem(
             icon: Icon(
               Icons.psychology_outlined,
-            ), // New icon for Self-Regulation
+            ), 
             activeIcon: Icon(Icons.psychology),
             label: 'Self-Regulation',
           ),

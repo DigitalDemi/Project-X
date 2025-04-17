@@ -1,5 +1,3 @@
-// Create a new file: lib/ui/content/quiz_view.dart
-
 import 'package:flutter/material.dart';
 import 'package:frontend/models/content.dart';
 import 'dart:convert';
@@ -19,6 +17,7 @@ class QuizView extends StatefulWidget {
 class _QuizViewState extends State<QuizView> {
   int _currentQuestionIndex = 0;
   List<Map<String, dynamic>> _questions = [];
+  // ignore: prefer_final_fields
   Map<int, int> _userAnswers = {}; // Maps question index to answer index
   bool _quizCompleted = false;
   int _score = 0;
@@ -161,7 +160,7 @@ class _QuizViewState extends State<QuizView> {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.deepPurpleAccent.withOpacity(0.3) : Colors.grey[850],
+                  color: isSelected ? Colors.deepPurpleAccent.withValues(alpha: 0.3) : Colors.grey[850],
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isSelected ? Colors.deepPurpleAccent : Colors.grey[800]!,
@@ -241,7 +240,7 @@ class _QuizViewState extends State<QuizView> {
           height: 150,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.deepPurpleAccent.withOpacity(0.2),
+            color: Colors.deepPurpleAccent.withValues(alpha: 0.2),
           ),
           child: Center(
             child: Column(

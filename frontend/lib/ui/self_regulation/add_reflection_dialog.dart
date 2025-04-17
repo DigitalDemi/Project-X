@@ -1,4 +1,3 @@
-// lib/ui/self_regulation/add_reflection_dialog.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/reflection_service.dart';
@@ -196,7 +195,7 @@ class _AddReflectionDialogState extends State<AddReflectionDialog> {
                 children: _tags.map((tag) {
                   return Chip(
                     label: Text(tag),
-                    backgroundColor: Colors.deepPurpleAccent.withOpacity(0.3),
+                    backgroundColor: Colors.deepPurpleAccent.withValues(alpha: 0.3),
                     deleteIcon: const Icon(Icons.close, size: 16),
                     onDeleted: () {
                       setState(() {
@@ -249,7 +248,7 @@ class _AddReflectionDialogState extends State<AddReflectionDialog> {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.3) : Colors.transparent,
+          color: isSelected ? color.withValues(alpha: 0.3) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: isSelected ? Border.all(color: color, width: 2) : null,
         ),
@@ -275,7 +274,7 @@ class _AddReflectionDialogState extends State<AddReflectionDialog> {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.deepPurpleAccent.withOpacity(0.3) : Colors.transparent,
+          color: isSelected ? Colors.deepPurpleAccent.withValues(alpha: 0.3) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: isSelected 
               ? Border.all(color: Colors.deepPurpleAccent, width: 2)

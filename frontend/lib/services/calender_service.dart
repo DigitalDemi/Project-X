@@ -1,4 +1,3 @@
-// lib/services/calendar_service.dart
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';

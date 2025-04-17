@@ -1,4 +1,3 @@
-// lib/ui/calendar/ics_config_dialog.dart
 import 'package:flutter/material.dart';
 import '../../services/ics_service.dart';
 
@@ -45,7 +44,7 @@ class _IcsConfigDialogState extends State<IcsConfigDialog> {
       await _icsService.setIcsUrl(url);
       
       // Test fetching events
-      final events = await _icsService.fetchAndParseIcsEvents();
+      // final events = await _icsService.fetchAndParseIcsEvents();
       
       if (mounted) {
         Navigator.of(context).pop(true);

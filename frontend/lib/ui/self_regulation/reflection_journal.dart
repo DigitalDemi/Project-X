@@ -1,4 +1,3 @@
-// lib/ui/self_regulation/reflection_journal.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/reflection_service.dart';
@@ -77,7 +76,6 @@ class ReflectionJournalPage extends StatelessWidget {
       ),
       floatingActionButton: Consumer<ReflectionService>(
         builder: (context, reflectionService, child) {
-          // Only show FAB if no reflection for today
           if (reflectionService.hasTodayReflection) {
             return const SizedBox.shrink();
           }
@@ -153,7 +151,6 @@ class ReflectionJournalPage extends StatelessWidget {
   Widget _buildMoodTrendChart(ReflectionService reflectionService) {
     final moodData = reflectionService.getMoodTrend();
     
-    // Only show last 7 days
     final recentData = moodData.length > 7 
         ? moodData.sublist(moodData.length - 7) 
         : moodData;
@@ -210,7 +207,6 @@ class ReflectionJournalPage extends StatelessWidget {
                           value.toInt().toString(),
                           style: const TextStyle(color: Colors.white70, fontSize: 10),
                         );
-                        // lib/ui/self_regulation/reflection_journal.dart (continued)
                       },
                       reservedSize: 22,
                     ),
@@ -233,7 +229,7 @@ class ReflectionJournalPage extends StatelessWidget {
                     dotData: FlDotData(show: true),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: Colors.deepPurpleAccent.withOpacity(0.2),
+                      color: Colors.deepPurpleAccent.withValues(alpha: 0.2),
                     ),
                   ),
                 ],
@@ -368,7 +364,7 @@ class ReflectionCard extends StatelessWidget {
                     margin: const EdgeInsets.only(left: 8),
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: Colors.deepPurpleAccent.withOpacity(0.2),
+                      color: Colors.deepPurpleAccent.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Text(

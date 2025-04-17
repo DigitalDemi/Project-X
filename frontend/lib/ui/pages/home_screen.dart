@@ -64,7 +64,7 @@ class MyHomePage extends StatelessWidget {
                     Text(
                       'YOU HAVE A MEETING',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -214,7 +214,7 @@ class MyHomePage extends StatelessWidget {
           Text(
             subtitle,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
             ),
           ),
         ],

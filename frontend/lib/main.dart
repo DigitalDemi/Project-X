@@ -54,7 +54,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => topicService),
         ChangeNotifierProvider(create: (_) => calendarService),
         ChangeNotifierProvider(create: (_) => LearningService()),
-        ChangeNotifierProvider(create: (_) => ContentService()), // Add this line
+        ChangeNotifierProvider(create: (_) => ContentService()), 
 
         ChangeNotifierProvider(create: (_) => energyService),
         ChangeNotifierProvider(create: (_) => focusSessionService),
@@ -63,7 +63,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => moodService),
 
       ],
-      child: const MyApp(), // This is fine since MyApp is already defined
+      child: const MyApp(), 
     ),
   );
 }

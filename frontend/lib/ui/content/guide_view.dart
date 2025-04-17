@@ -1,5 +1,3 @@
-// Create a new file: lib/ui/content/guide_view.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:frontend/models/content.dart';
@@ -52,7 +50,7 @@ class _GuideViewState extends State<GuideView> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.2),
+                          color: Colors.green.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Icon(

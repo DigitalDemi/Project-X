@@ -1,4 +1,4 @@
-// lib/services/google_calendar_service.dart
+import 'package:flutter/foundation.dart';
 import 'package:frontend/models/calendar_event.dart';
 import 'package:googleapis/calendar/v3.dart' as google_calendar;
 import 'package:googleapis_auth/auth_io.dart';
@@ -41,7 +41,9 @@ class GoogleCalendarService {
       final prefs = await _prefs;
       await prefs.setString('google_access_token', client.credentials.accessToken.data);
     } catch (e) {
-      print('Error connecting to Google Calendar: $e');
+      if (kDebugMode) {
+        print('Error connecting to Google Calendar: $e');
+      }
       rethrow;
     }
   }
@@ -71,7 +73,9 @@ class GoogleCalendarService {
 
       return _convertGoogleEventsToCalendarEvents(events.items ?? []);
     } catch (e) {
-      print('Error fetching Google Calendar events: $e');
+      if (kDebugMode) {
+        print('Error fetching Google Calendar events: $e');
+      }
       return [];
     }
   }

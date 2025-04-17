@@ -1,4 +1,3 @@
-// lib/ui/content/search_delegate.dart
 import 'package:flutter/material.dart';
 import 'package:frontend/models/content.dart';
 import 'package:frontend/services/content_service.dart';
@@ -174,7 +173,7 @@ class ContentSearchDelegate extends SearchDelegate<Content?> {
           leading: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: _getTypeColor(content.type).withOpacity(0.2),
+              color: _getTypeColor(content.type).withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(

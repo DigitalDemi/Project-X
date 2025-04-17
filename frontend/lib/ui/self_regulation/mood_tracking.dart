@@ -1,4 +1,3 @@
-// lib/ui/self_regulation/mood_tracking.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/mood_service.dart';
@@ -209,7 +208,7 @@ class MoodTrackingPage extends StatelessWidget {
                       dotData: FlDotData(show: true),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: Colors.deepPurpleAccent.withOpacity(0.2),
+                        color: Colors.deepPurpleAccent.withValues(alpha: 0.2),
                       ),
                     ),
                   ],

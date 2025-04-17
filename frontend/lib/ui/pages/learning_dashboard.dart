@@ -1,5 +1,4 @@
-// lib/ui/pages/learning_dashboard.dart
-import 'dart:math' as Math;
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -285,8 +284,8 @@ class KnowledgeGraphPainter extends CustomPainter {
     for (var i = 0; i < subjects.length; i++) {
       final subject = subjects[i];
       final angle = (i * 2 * 3.14159 / subjects.length) - 3.14159 / 4;
-      final x = center.dx + orbitRadius * 0.8 * Math.cos(angle);
-      final y = center.dy + orbitRadius * 0.8 * Math.sin(angle);
+      final x = center.dx + orbitRadius * 0.8 * math.cos(angle);
+      final y = center.dy + orbitRadius * 0.8 * math.sin(angle);
       final nodeCenter = Offset(x, y);
 
       // Node
@@ -306,8 +305,8 @@ class KnowledgeGraphPainter extends CustomPainter {
           final topicAngle =
               angle + (j * 2 * 3.14159 / topics.length) - 3.14159 / 4;
 
-          final tx = x + topicOrbitRadius * Math.cos(topicAngle);
-          final ty = y + topicOrbitRadius * Math.sin(topicAngle);
+          final tx = x + topicOrbitRadius * math.cos(topicAngle);
+          final ty = y + topicOrbitRadius * math.sin(topicAngle);
           final topicCenter = Offset(tx, ty);
 
           // Connection line
@@ -330,17 +329,17 @@ class KnowledgeGraphPainter extends CustomPainter {
   Color _getStageColor(String stage) {
     switch (stage) {
       case 'first_time':
-        return Colors.red.withOpacity(0.7);
+        return Colors.red.withValues(alpha: 0.7);
       case 'early_stage':
-        return Colors.orange.withOpacity(0.7);
+        return Colors.orange.withValues(alpha: 0.7);
       case 'mid_stage':
-        return Colors.yellow.withOpacity(0.7);
+        return Colors.yellow.withValues(alpha: 0.7);
       case 'late_stage':
-        return Colors.green.withOpacity(0.7);
+        return Colors.green.withValues(alpha: 0.7);
       case 'mastered':
-        return Colors.blue.withOpacity(0.7);
+        return Colors.blue.withValues(alpha: 0.7);
       default:
-        return Colors.grey.withOpacity(0.7);
+        return Colors.grey.withValues(alpha: 0.7);
     }
   }
 
@@ -640,7 +639,7 @@ class ChartGrid extends StatelessWidget {
         barRods: [
           BarChartRodData(
             toY: maxValue > 0 ? value.toDouble() : 0.1,
-            color: Colors.deepPurpleAccent.withOpacity(0.7),
+            color: Colors.deepPurpleAccent.withValues(alpha: 0.7),
             borderRadius: BorderRadius.circular(4),
           ),
         ],
@@ -659,11 +658,11 @@ class ChartGrid extends StatelessWidget {
       'mastered',
     ];
     final colors = [
-      Colors.red.withOpacity(0.7),
-      Colors.orange.withOpacity(0.7),
-      Colors.yellow.withOpacity(0.7),
-      Colors.green.withOpacity(0.7),
-      Colors.blue.withOpacity(0.7),
+      Colors.red.withValues(alpha: 0.7),
+      Colors.orange.withValues(alpha: 0.7),
+      Colors.yellow.withValues(alpha: 0.7),
+      Colors.green.withValues(alpha: 0.7),
+      Colors.blue.withValues(alpha: 0.7),
     ];
 
     final total = stagesDistribution.values.fold(
@@ -676,7 +675,7 @@ class ChartGrid extends StatelessWidget {
       return [
         PieChartSectionData(
           value: 1,
-          color: Colors.grey.withOpacity(0.3),
+          color: Colors.grey.withValues(alpha: 0.3),
           title: 'No data',
           radius: 50,
           titleStyle: const TextStyle(color: Colors.white70, fontSize: 12),

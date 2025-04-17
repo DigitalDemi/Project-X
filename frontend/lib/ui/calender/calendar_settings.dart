@@ -1,4 +1,3 @@
-// lib/ui/calendar/calendar_settings.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../services/ics_service.dart';
@@ -211,7 +210,7 @@ class _CalendarSettingsPageState extends State<CalendarSettingsPage> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.2),
+                        color: Colors.red.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -224,7 +223,7 @@ class _CalendarSettingsPageState extends State<CalendarSettingsPage> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.2),
+                        color: Colors.green.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(

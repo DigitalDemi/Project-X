@@ -1,4 +1,3 @@
-// lib/models/mood_entry.dart
 class MoodEntry {
   final String id;
   final DateTime timestamp;

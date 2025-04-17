@@ -1,4 +1,3 @@
-// lib/ui/calendar/add_event_dialog.dart
 import 'package:flutter/material.dart';
 import 'package:frontend/services/calender_service.dart';
 import 'package:provider/provider.dart';
@@ -105,7 +104,6 @@ class _AddEventDialogState extends State<AddEventDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Dialog(
       backgroundColor: Colors.grey[900],
       shape: RoundedRectangleBorder(

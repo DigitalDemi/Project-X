@@ -1,4 +1,3 @@
-// lib/ui/learning/topic_content_manager.dart
 import 'package:flutter/material.dart';
 import 'package:frontend/models/content.dart';
 import 'package:frontend/models/topic.dart';
@@ -20,10 +19,12 @@ class TopicContentManagerPage extends StatefulWidget {
 }
 
 class _TopicContentManagerPageState extends State<TopicContentManagerPage> {
+  // ignore: unused_field
   bool _isAddingUrl = false;
   final _urlController = TextEditingController();
   final _titleController = TextEditingController();
   final _noteController = TextEditingController();
+  // ignore: unused_field
   List<ContentRating> _contentRatings = [];
 
   @override
@@ -41,8 +42,6 @@ class _TopicContentManagerPageState extends State<TopicContentManagerPage> {
   }
 
   Future<void> _loadContentRatings() async {
-    // In a real implementation, this would load from a database
-    // For now, we'll use mock data
     setState(() {
       _contentRatings = [
         ContentRating(contentId: 'content1', rating: 4, note: 'Very helpful for understanding the concept'),
@@ -100,7 +99,7 @@ class _TopicContentManagerPageState extends State<TopicContentManagerPage> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: _getStageColor(widget.topic.stage).withOpacity(0.2),
+                  color: _getStageColor(widget.topic.stage).withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -256,7 +255,7 @@ class _TopicContentManagerPageState extends State<TopicContentManagerPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
@@ -283,7 +282,7 @@ class _TopicContentManagerPageState extends State<TopicContentManagerPage> {
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.2),
+                  color: Colors.green.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.link, color: Colors.green),
@@ -302,7 +301,7 @@ class _TopicContentManagerPageState extends State<TopicContentManagerPage> {
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.2),
+                  color: Colors.blue.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.note_add, color: Colors.blue),
@@ -620,9 +619,9 @@ class _AppContentTab extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               if (rating > 0) {
-                // Save the rating (in a real app, this would save to a database)
                 Navigator.pop(context);
                 
+                // ignore: unused_local_variable
                 final contentRating = ContentRating(
                   contentId: content.id,
                   rating: rating,
@@ -815,7 +814,7 @@ class _ContentListItem extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.2),
+                      color: color.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(icon, color: color),
@@ -891,7 +890,7 @@ class _WebLinkItem extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.2),
+                    color: Colors.green.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.link, color: Colors.green),
@@ -974,7 +973,7 @@ class _StudyNoteItem extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.2),
+                    color: Colors.blue.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.note, color: Colors.blue),
