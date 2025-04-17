@@ -1,0 +1,59 @@
+{
+  "questions": [
+    {
+      "question": "What is the main goal of effective practice?",
+      "options": [
+        "Spending as much time as possible on one topic",
+        "Practicing with as little effort as possible",
+        "Improving skills through focused and structured effort",
+        "Only repeating what you already know"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Effective practice focuses on deliberate improvement, not just repetition."
+    },
+    {
+      "question": "Why are focused sessions more effective than long, unfocused ones?",
+      "options": [
+        "They take less time overall",
+        "They allow for more multitasking",
+        "They help maintain concentration and achieve specific goals",
+        "They let you skip breaks"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Short, focused sessions prevent fatigue and ensure you're working with clear intent."
+    },
+    {
+      "question": "How does feedback improve practice?",
+      "options": [
+        "It makes the process longer",
+        "It points out mistakes and guides improvement",
+        "It slows down progress",
+        "It is only useful at the end of learning"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Feedback identifies areas to improve, helping you grow faster and avoid repeating errors."
+    },
+    {
+      "question": "Why is regular practice better than infrequent long sessions?",
+      "options": [
+        "It helps avoid feedback",
+        "It builds consistency and reinforces learning",
+        "It\u2019s easier to remember your schedule",
+        "It allows you to study without reviewing"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Frequent practice creates stronger memory connections and long-term skill retention."
+    },
+    {
+      "question": "How does effective practice lead to faster improvement?",
+      "options": [
+        "By cramming more content",
+        "By repeating everything equally",
+        "By targeting weaknesses and refining technique",
+        "By using shortcuts"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Targeting areas of struggle with focus and feedback helps you get better quickly and efficiently."
+    }
+  ]
+}

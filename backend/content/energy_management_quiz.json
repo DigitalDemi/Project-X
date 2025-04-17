@@ -1,0 +1,59 @@
+{
+  "questions": [
+    {
+      "question": "What is the main goal of energy management?",
+      "options": [
+        "To work longer hours",
+        "To stay busy all day",
+        "To maintain consistent productivity and avoid burnout",
+        "To multitask efficiently"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Energy management is about sustaining productivity by preserving and renewing your mental and physical energy."
+    },
+    {
+      "question": "Which of the following contributes to better energy management?",
+      "options": [
+        "Skipping meals to save time",
+        "Pulling all-nighters regularly",
+        "Taking regular breaks",
+        "Working nonstop for hours"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Short, frequent breaks help maintain focus and avoid mental fatigue."
+    },
+    {
+      "question": "How does sleep impact energy levels?",
+      "options": [
+        "Sleep is unrelated to energy levels",
+        "More sleep causes laziness",
+        "Quality sleep restores cognitive and physical function",
+        "Sleep is only important on weekends"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Getting 7\u20139 hours of sleep each night supports focus, memory, and energy throughout the day."
+    },
+    {
+      "question": "Which diet habit supports better energy levels?",
+      "options": [
+        "Eating large meals infrequently",
+        "Fasting for productivity",
+        "Eating a balanced diet with whole foods",
+        "Relying on sugar and caffeine"
+      ],
+      "correctAnswer": 2,
+      "explanation": "A balanced diet with consistent, nutritious meals stabilizes energy and avoids crashes."
+    },
+    {
+      "question": "What is self-regulation in the context of energy management?",
+      "options": [
+        "Controlling your schedule strictly",
+        "Suppressing emotions",
+        "Being aware of your emotional state to adjust energy use",
+        "Avoiding social interactions"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Self-regulation involves monitoring your mental and emotional state to stay focused and preserve energy."
+    }
+  ]
+}

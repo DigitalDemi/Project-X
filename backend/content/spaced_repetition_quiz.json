@@ -1,0 +1,59 @@
+{
+  "questions": [
+    {
+      "question": "What is the main idea behind spaced repetition?",
+      "options": [
+        "Reviewing information at increasing intervals to boost retention",
+        "Reading material quickly multiple times",
+        "Studying all material in one long session",
+        "Focusing only on new information each time"
+      ],
+      "correctAnswer": 0,
+      "explanation": "Spaced repetition is designed to review material at increasing intervals to align with the brain\u2019s natural forgetting curve."
+    },
+    {
+      "question": "Which of the following best describes the spacing effect?",
+      "options": [
+        "Learning is best done in one long study session",
+        "Reviewing material frequently with no breaks is optimal",
+        "Information is better retained when study sessions are spread out over time",
+        "Immediate repetition leads to long-term memory"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The spacing effect shows that spreading out study sessions helps memory consolidate better over time."
+    },
+    {
+      "question": "Why does spaced repetition save time compared to traditional study methods?",
+      "options": [
+        "You study only once per topic",
+        "It eliminates the need for reviewing altogether",
+        "It focuses reviews only when you're about to forget the material",
+        "You can skip hard topics"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Spaced repetition reduces wasted effort by targeting reviews right before you're likely to forget something."
+    },
+    {
+      "question": "What is one recommended tool for using spaced repetition effectively?",
+      "options": [
+        "Canva",
+        "Google Docs",
+        "Anki",
+        "Slack"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Anki is a popular app that uses spaced repetition algorithms to schedule optimal review intervals automatically."
+    },
+    {
+      "question": "How should you adjust your review intervals as you become more familiar with the material?",
+      "options": [
+        "Review less often at first, then more frequently later",
+        "Maintain the same interval regardless of memory strength",
+        "Increase the interval between reviews as recall improves",
+        "Stop reviewing once you've seen the material twice"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Spaced repetition increases the time between reviews as your memory strengthens, maximizing efficiency and retention."
+    }
+  ]
+}

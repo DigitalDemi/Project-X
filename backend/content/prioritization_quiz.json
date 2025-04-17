@@ -1,0 +1,59 @@
+{
+  "questions": [
+    {
+      "question": "Why is prioritization important in time management?",
+      "options": [
+        "It helps avoid doing any tasks",
+        "It ensures the most important tasks get completed first",
+        "It increases the number of tasks you have to do",
+        "It makes your day more random"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Prioritization ensures your focus is on high-impact tasks that align with your goals and reduce overwhelm."
+    },
+    {
+      "question": "Which tool divides tasks by urgency and importance?",
+      "options": [
+        "Time Tracker",
+        "Mind Map",
+        "Eisenhower Matrix",
+        "Pomodoro Timer"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The Eisenhower Matrix organizes tasks into four quadrants based on urgency and importance to guide decision-making."
+    },
+    {
+      "question": "In the Eisenhower Matrix, what should be done with tasks that are neither urgent nor important?",
+      "options": [
+        "Schedule them for later",
+        "Eliminate them",
+        "Do them first",
+        "Delegate them"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Tasks that are neither urgent nor important should be eliminated to make space for more meaningful work."
+    },
+    {
+      "question": "What does the 'A' category stand for in the ABC prioritization method?",
+      "options": [
+        "Always optional tasks",
+        "Administrative tasks",
+        "Must-do tasks with serious consequences if missed",
+        "All remaining work"
+      ],
+      "correctAnswer": 2,
+      "explanation": "'A' tasks are top priority\u2014missing them has serious consequences, so they should be tackled first."
+    },
+    {
+      "question": "What\u2019s a good reason to combine prioritization with time blocking?",
+      "options": [
+        "To reduce the number of tasks you complete",
+        "To avoid setting any deadlines",
+        "To align important tasks with scheduled time slots",
+        "To work only on weekends"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Combining prioritization with time blocking helps ensure your schedule reflects your highest priorities."
+    }
+  ]
+}

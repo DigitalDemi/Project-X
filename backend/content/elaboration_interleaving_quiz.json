@@ -1,0 +1,59 @@
+{
+  "questions": [
+    {
+      "question": "What is elaboration in learning?",
+      "options": [
+        "Memorizing facts without context",
+        "Connecting new information to what you already know",
+        "Rereading material multiple times",
+        "Highlighting textbook content"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Elaboration deepens understanding by linking new ideas with existing knowledge and explaining them."
+    },
+    {
+      "question": "Which technique supports elaboration?",
+      "options": [
+        "Copying notes word-for-word",
+        "Rewriting information multiple times",
+        "Asking how and why questions",
+        "Color-coding your textbook"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Asking 'how' and 'why' encourages critical thinking and deeper comprehension through elaboration."
+    },
+    {
+      "question": "What is interleaving?",
+      "options": [
+        "Studying one topic for an entire session",
+        "Switching between different topics during a study session",
+        "Taking long breaks between topics",
+        "Avoiding unrelated subjects"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Interleaving mixes topics or skills in a single session, challenging your brain to distinguish between them."
+    },
+    {
+      "question": "How does interleaving improve learning?",
+      "options": [
+        "By keeping your mind focused on one idea only",
+        "By strengthening problem-solving skills and long-term retention",
+        "By reducing the number of study sessions needed",
+        "By simplifying the material"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Interleaving improves adaptability and memory by forcing your brain to switch and recall different types of content."
+    },
+    {
+      "question": "Which is an example of elaboration?",
+      "options": [
+        "Reciting a fact repeatedly",
+        "Relating a new concept to a real-world scenario",
+        "Reading without taking notes",
+        "Taking a break from studying"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Linking new information to real-life examples helps encode it more meaningfully and makes it easier to recall."
+    }
+  ]
+}

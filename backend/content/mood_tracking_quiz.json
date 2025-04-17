@@ -1,0 +1,59 @@
+{
+  "questions": [
+    {
+      "question": "What is the main purpose of mood tracking?",
+      "options": [
+        "To improve typing speed",
+        "To track calories",
+        "To increase emotional awareness and manage moods better",
+        "To reduce your workload"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Mood tracking helps you understand emotional patterns and identify what affects your mental state."
+    },
+    {
+      "question": "Which of the following is a method for tracking mood?",
+      "options": [
+        "Daily journaling",
+        "Daily weighing",
+        "Counting steps",
+        "Planning social events"
+      ],
+      "correctAnswer": 0,
+      "explanation": "Writing down thoughts and feelings helps reflect on emotions and identify trends over time."
+    },
+    {
+      "question": "How can mood tracking apps help?",
+      "options": [
+        "They increase anxiety",
+        "They allow for passive review of TV habits",
+        "They tag emotions and visualize trends",
+        "They limit your screen time"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Mood tracking apps simplify consistent tracking and offer insights through tags, reminders, and mood charts."
+    },
+    {
+      "question": "What is a benefit of reflecting regularly on mood entries?",
+      "options": [
+        "To review your vocabulary",
+        "To identify patterns and make better emotional decisions",
+        "To track your favorite music",
+        "To reduce exercise time"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Reflecting on mood entries helps you spot triggers, cycles, and behaviors that influence your well-being."
+    },
+    {
+      "question": "How are mood and energy levels related?",
+      "options": [
+        "They are not related",
+        "High energy always causes sadness",
+        "Low energy can lead to irritability or sadness",
+        "Energy only affects physical strength"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Low energy often contributes to negative moods, while higher energy supports emotional stability."
+    }
+  ]
+}

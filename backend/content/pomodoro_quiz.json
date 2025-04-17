@@ -1,0 +1,59 @@
+{
+  "questions": [
+    {
+      "question": "What is a 'Pomodoro' in the Pomodoro Technique?",
+      "options": [
+        "A list of goals",
+        "A 25-minute focused work session",
+        "A long break",
+        "A productivity app"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A Pomodoro is a 25-minute session of focused work followed by a short break."
+    },
+    {
+      "question": "How long is the break after each Pomodoro?",
+      "options": [
+        "1 minute",
+        "10 minutes",
+        "5 minutes",
+        "30 minutes"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Each Pomodoro is followed by a 5-minute break to reset your focus."
+    },
+    {
+      "question": "What happens after completing four Pomodoros?",
+      "options": [
+        "You start over from the beginning",
+        "You switch to multitasking",
+        "You take a longer break of 15\u201330 minutes",
+        "You skip your next break"
+      ],
+      "correctAnswer": 2,
+      "explanation": "After four Pomodoros, a longer break helps recharge your mental energy."
+    },
+    {
+      "question": "What is a key benefit of using the Pomodoro Technique?",
+      "options": [
+        "It helps you avoid all breaks",
+        "It trains your brain to focus intensely for short periods",
+        "It allows multitasking throughout the day",
+        "It eliminates the need for planning"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The Pomodoro Technique improves focus by encouraging short, concentrated work intervals."
+    },
+    {
+      "question": "Why are breaks important in the Pomodoro Technique?",
+      "options": [
+        "They help you switch tasks more often",
+        "They improve posture",
+        "They allow your brain to rest and prevent burnout",
+        "They give you time to check notifications"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Short breaks between Pomodoros give your brain a chance to recover, making sustained focus possible."
+    }
+  ]
+}

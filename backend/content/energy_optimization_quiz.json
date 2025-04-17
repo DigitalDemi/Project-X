@@ -1,0 +1,59 @@
+{
+  "questions": [
+    {
+      "question": "What is the main focus of energy optimization?",
+      "options": [
+        "Using more time to complete tasks",
+        "Avoiding rest to build endurance",
+        "Maintaining steady productivity and well-being through healthy habits",
+        "Working late into the night"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Energy optimization is about using your energy wisely throughout the day to stay productive and feel good."
+    },
+    {
+      "question": "Which of the following helps boost physical energy?",
+      "options": [
+        "Avoiding food in the morning",
+        "Regular exercise",
+        "Working while lying in bed",
+        "Skipping breaks"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Exercise increases circulation and endorphins, which support higher energy levels and alertness."
+    },
+    {
+      "question": "How does hydration affect energy?",
+      "options": [
+        "It decreases concentration",
+        "It only matters during workouts",
+        "Staying hydrated improves mental clarity and prevents fatigue",
+        "It has no effect on energy"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Dehydration can cause fatigue and reduce cognitive function, so drinking water regularly supports consistent energy."
+    },
+    {
+      "question": "Which eating habit is recommended for better energy management?",
+      "options": [
+        "Eating sugary snacks frequently",
+        "Skipping lunch for more work time",
+        "Consuming balanced meals with whole foods",
+        "Eating once a day"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Balanced meals help regulate blood sugar and prevent energy crashes, supporting sustained focus and energy."
+    },
+    {
+      "question": "How does energy optimization support learning?",
+      "options": [
+        "By making tasks harder",
+        "By focusing on study only at night",
+        "By aligning study tasks with your high-energy periods",
+        "By reducing the amount of material to learn"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Matching challenging study tasks with times when your energy is highest improves focus, memory, and learning quality."
+    }
+  ]
+}
