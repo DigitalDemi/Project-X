@@ -477,3 +477,20 @@ class Neo4jConnection:
                 )
             
             return session_id
+
+    def get_all_content(self):
+        with self.driver.session() as session:
+            result = session.run("""
+                MATCH (c:Content)
+                OPTIONAL MATCH (c)-[:EXPLAINS]->(t:Topic)
+                RETURN c, collect(t.id) as related_topic_ids
+                ORDER BY c.created_at DESC
+                """)
+            
+            content_list = []
+            for record in result:
+                content = dict(record["c"])
+                content["related_topic_ids"] = record["related_topic_ids"]
+                content_list.append(content)
+            
+            return content_list

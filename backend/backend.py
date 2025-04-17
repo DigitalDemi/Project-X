@@ -327,6 +327,15 @@ async def create_study_session(session_data: dict):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error creating study session: {str(e)}")
 
+@app.get("/content/")
+async def get_all_content():
+    """Get all content resources"""
+    try:
+        content_list = db.get_all_content()
+        return content_list
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting content: {str(e)}")
+
 @app.on_event("shutdown")
 async def shutdown_event():
     db.close()
