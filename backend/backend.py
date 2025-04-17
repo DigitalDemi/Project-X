@@ -6,6 +6,8 @@ from typing import List, Dict, Optional
 from datetime import datetime, timedelta
 import json
 from database import Neo4jConnection
+from dotenv import load_dotenv
+load_dotenv()
 
 
 class ContentCreate(BaseModel):

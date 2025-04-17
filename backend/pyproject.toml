@@ -27,4 +27,5 @@ dev = [
     "httpx>=0.28.1",
     "pytest>=8.3.5",
     "pytest-cov>=6.1.1",
+    "python-dotenv>=1.1.0",
 ]

@@ -1,11 +1,21 @@
+import os
 from neo4j import GraphDatabase
 from datetime import datetime
 import json
 
-password = f'qc7SCgkC.fN"^*+'
 
 class Neo4jConnection:
-    def __init__(self, uri="bolt://100.77.110.46:7687", user="neo4j", password=password):
+    def __init__(
+        self,
+        uri: str | None = None,
+        user: str | None = None,
+        password: str | None = None,
+    ):
+        uri = uri or os.getenv("NEO4J_URI")
+        user = user or os.getenv("NEO4J_USER")
+        password = password or os.getenv("NEO4J_PASSWORD")
+        if not password:
+            raise RuntimeError("NEO4J_PASSWORD must be set in the environment")
         self.driver = GraphDatabase.driver(uri, auth=(user, password))
 
     def close(self):
