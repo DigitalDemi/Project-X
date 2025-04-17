@@ -1,4 +1,7 @@
 // lib/models/energy_level.dart
+// overview of pages, explain, introduction, and talk about hardware
+// 1998
+
 class EnergyLevel {
   final String id;
   final DateTime timestamp;

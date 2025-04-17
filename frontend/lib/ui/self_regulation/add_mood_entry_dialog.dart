@@ -85,7 +85,7 @@ class _AddMoodEntryDialogState extends State<AddMoodEntryDialog> {
                 _buildMoodOption(2, Icons.sentiment_dissatisfied, Colors.orange, 'Bad'),
                 _buildMoodOption(3, Icons.sentiment_neutral, Colors.yellow, 'Neutral'),
                 _buildMoodOption(4, Icons.sentiment_satisfied, Colors.lightGreen, 'Good'),
-                _buildMoodOption(5, Icons.sentiment_very_satisfied, Colors.green, 'Very Good'),
+                _buildMoodOption(5, Icons.sentiment_very_satisfied, Colors.green, 'Very\nGood'),
               ],
             ),
             const SizedBox(height: 24),
@@ -202,7 +202,7 @@ class _AddMoodEntryDialogState extends State<AddMoodEntryDialog> {
             Icon(
               icon,
               color: isSelected ? color : Colors.grey[400],
-              size: 36,
+              size: 24,
             ),
             const SizedBox(height: 4),
             Text(

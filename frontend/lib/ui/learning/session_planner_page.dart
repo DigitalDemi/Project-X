@@ -240,8 +240,8 @@ class _SessionPlannerPageState extends State<SessionPlannerPage> {
                 const Text(
                   'Select Topics for Your Session',
                   style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
+                    color: Color.fromRGBO(255, 255, 255, 1),
+                    fontSize: 13,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -584,8 +584,8 @@ class _SessionPlannerPageState extends State<SessionPlannerPage> {
       _generatedPlans = null;
     });
 
-    // Simulate API call or complex calculation
-    await Future.delayed(const Duration(seconds: 1));
+    // // Simulate API call or complex calculation
+    // await Future.delayed(const Duration(seconds: 1));
 
     List<Topic> topicsToUse =
         _selectedTopics.isEmpty
