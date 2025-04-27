@@ -5,6 +5,7 @@ import 'package:frontend/ui/learning/learning_module_home.dart';
 import 'package:frontend/ui/navigation/shared/bottom_navigation.dart';
 import 'package:frontend/ui/navigation/shared/top_bar.dart';
 import 'package:frontend/ui/self_regulation/self_regulation_page.dart';
+import 'package:frontend/ui/tasks/horizontal_task_scroller.dart';
 import 'package:frontend/ui/tasks/task_card.dart';
 import 'package:frontend/ui/tasks/task_list.dart';
 import 'package:frontend/ui/pages/modules_view.dart';
@@ -38,7 +39,7 @@ class _BodyState extends State<Body> {
               const SizedBox(height: 24),
               const CalendarView(),
               const SizedBox(height: 24),
-              const TaskCardList(),
+              const HorizontalTaskScroller(),
               const SizedBox(height: 24),
               const TaskListSection(),
             ],
