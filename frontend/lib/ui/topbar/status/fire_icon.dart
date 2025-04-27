@@ -5,10 +5,11 @@ class FireIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Icon(
-      Icons.local_fire_department,
-      color: Colors.white,
-      size: 24,
+    // Example implementation - customize as needed
+    return Icon(
+      Icons.local_fire_department_rounded, // Or Icons.whatshot
+      color: Colors.orangeAccent[100], // Softer orange/yellow
+      size: 20, // Adjust size as needed
     );
   }
 }
